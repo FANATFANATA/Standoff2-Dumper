@@ -52,7 +52,7 @@ void Dumper::dump(const char *path) {
 
 
     for (Il2Cpp::Class *klass : m_vecClasses) {
-        dump << dumpClass(klass) << std::endl;
+        dump << dumpClass(klass) << std::endl;//
     }
 }
 
@@ -363,12 +363,12 @@ std::string Dumper::dumpField(Il2Cpp::Field *field, bool is_enum, bool is_struct
         int32_t offset = g.il2cpp->getFieldOffset(field);
         if (is_enum) {
             if (result.find("const") == std::string::npos) {
-                offset -= offset > 0x10 ? 0x10 : 0x0;
+                offset -= offset >= 0x10 ? 0x10 : 0x0;
                 result += " // " + (std::stringstream() << "0x" << std::hex << std::uppercase << offset).str();
             }
         } else if (is_struct) {
             if (result.find("const") == std::string::npos && result.find("static") == std::string::npos) {
-                offset -= offset > 0x10 ? 0x10 : 0x0;
+                offset -= offset >= 0x10 ? 0x10 : 0x0;
             }
             result += " // " + (std::stringstream() << "0x" << std::hex << std::uppercase << offset).str();
         } else {
