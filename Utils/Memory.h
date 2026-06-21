@@ -93,64 +93,64 @@ private:
 public:
 
     struct {
-        uintptr_t assemblies_start = UINTPTR_MAX; //0xADD7BB8;
-        uintptr_t assemblies_end = UINTPTR_MAX; //0xADD7BC0;
+        uintptr_t assemblies_start = UINTPTR_MAX; // 0xADD7138
+        uintptr_t assemblies_end = UINTPTR_MAX; // 0xADD7140
 
         //assembly
-        uintptr_t assembly_open = UINTPTR_MAX; //0x5B79384;
-        uintptr_t assembly_name = UINTPTR_MAX; //0x10;
-        uintptr_t assembly_get_image = UINTPTR_MAX; //0x5B7937C;
+        uintptr_t assembly_open = UINTPTR_MAX; // 0x5B7A554
+        uintptr_t assembly_name = UINTPTR_MAX; // 0x18
+        uintptr_t assembly_get_image = UINTPTR_MAX; // 0x5B7A54C
 
         // image
-        uintptr_t image_type_count = UINTPTR_MAX; //0x0;
-        uintptr_t image_get_assembly_type_handle = UINTPTR_MAX; //0x9B6D5F0;
-        uintptr_t handle_get_type_from_handle = UINTPTR_MAX; //0x9B6DA60;
-        uintptr_t image_name = UINTPTR_MAX; //0x48;
+        uintptr_t image_type_count = UINTPTR_MAX; // 0x44
+        uintptr_t image_get_assembly_type_handle = UINTPTR_MAX; // 0x9B6C8C4
+        uintptr_t handle_get_type_from_handle = UINTPTR_MAX; // 0x9B6CD48
+        uintptr_t image_name = UINTPTR_MAX; // 0x30
 
         // class
-        uintptr_t class_get_name = UINTPTR_MAX; //0x9B3C8F8;
-        uintptr_t class_namespace = UINTPTR_MAX; //0x118;
-        uintptr_t class_get_parent = UINTPTR_MAX; //0x9B3C9EC;
-        uintptr_t class_get_fields = UINTPTR_MAX; //0x9B3C4CC;
-        uintptr_t class_get_properties = UINTPTR_MAX; //0x9B3C9F4;
-        uintptr_t class_get_methods = UINTPTR_MAX; //0x9B3C70C;
-        uintptr_t class_type = UINTPTR_MAX; //0x180;
-        uintptr_t class_get_enum_basetype = UINTPTR_MAX; //0x9B3C3E8;
-        uintptr_t class_get_flags = UINTPTR_MAX; //0x5B75168;
-        uintptr_t class_get_interfaces = UINTPTR_MAX; //0x9B3C644;
-        uintptr_t class_get_declaring_type = UINTPTR_MAX; //0x9B3F1D4;
-        uintptr_t class_get_is_generic = UINTPTR_MAX; //0x9B3CF90;
+        uintptr_t class_get_name = UINTPTR_MAX; // 0x9B3BB74
+        uintptr_t class_namespace = UINTPTR_MAX; // 0xF0
+        uintptr_t class_get_parent = UINTPTR_MAX; // 0x9B3BC68
+        uintptr_t class_get_fields = UINTPTR_MAX; // 0x9B3B728
+        uintptr_t class_get_properties = UINTPTR_MAX; // 0x9B3BC70
+        uintptr_t class_get_methods = UINTPTR_MAX; // 0x9B3B988
+        uintptr_t class_type = UINTPTR_MAX; // 0x20
+        uintptr_t class_get_enum_basetype = UINTPTR_MAX; // 0x9B3B644
+        uintptr_t class_get_flags = UINTPTR_MAX; // 0x5B76368
+        uintptr_t class_get_interfaces = UINTPTR_MAX; // 0x9B3B8C0
+        uintptr_t class_get_declaring_type = UINTPTR_MAX; // 0x9B3E44C
+        uintptr_t class_get_is_generic = UINTPTR_MAX; // 0x9B3C1FC
 
         // field
-        uintptr_t field_get_name = UINTPTR_MAX; //0x5B75640;
-        uintptr_t field_get_offset = UINTPTR_MAX; //0x4D7C52C;
-        uintptr_t field_get_type = UINTPTR_MAX; //0x4D7C530;
-        uintptr_t field_get_default_value = UINTPTR_MAX; //0x9B6CFC4;
+        uintptr_t field_get_name = UINTPTR_MAX; // 0x5B76840
+        uintptr_t field_get_offset = UINTPTR_MAX; // 0x4D7D72C
+        uintptr_t field_get_type = UINTPTR_MAX; // 0x4D7D730
+        uintptr_t field_get_default_value = UINTPTR_MAX; // 0x9B6C290
 
         // type
-        uintptr_t type_get_type = UINTPTR_MAX; //0x4D7C544;
-        uintptr_t type_attrs = UINTPTR_MAX; //0x0;
-        uintptr_t type_attrs_shift = UINTPTR_MAX; //0x2;
-        uintptr_t type_get_class_from_type = UINTPTR_MAX; //0x9B3BE28;
-        uintptr_t type_get_data = UINTPTR_MAX; //0x9B7D5B0;
-        uintptr_t type_get_name = UINTPTR_MAX; //0x9B7D5B4;
+        uintptr_t type_get_type = UINTPTR_MAX; // 0x4D7D744
+        uintptr_t type_attrs = UINTPTR_MAX; // 0x10
+        uintptr_t type_attrs_shift = UINTPTR_MAX; // 0x2
+        uintptr_t type_get_class_from_type = UINTPTR_MAX; // 0x9B3B06C
+        uintptr_t type_get_data = UINTPTR_MAX; // 0x9B7C880
+        uintptr_t type_get_name = UINTPTR_MAX; // 0x9B7C884
 
         // property
-        uintptr_t property_name = UINTPTR_MAX; //0x18;
-        uintptr_t property_get_method = UINTPTR_MAX; //0x0;
-        uintptr_t property_set_method = UINTPTR_MAX; //0x28;
+        uintptr_t property_name = UINTPTR_MAX; // 0x10
+        uintptr_t property_get_method = UINTPTR_MAX; // 0x0
+        uintptr_t property_set_method = UINTPTR_MAX; // 0x20
 
         // method
-        uintptr_t method_name = UINTPTR_MAX; //0x40;
-        uintptr_t method_return_type = UINTPTR_MAX; //0x68;
-        uintptr_t method_get_flags = UINTPTR_MAX; //0x5CE3504;
-        uintptr_t method_parameters_count = UINTPTR_MAX; //0x36;
-        uintptr_t method_get_parameter = UINTPTR_MAX; //0x9B6F3A8;
-        uintptr_t method_pointer = UINTPTR_MAX; //0x50;
-        uintptr_t method_virtual_pointer = UINTPTR_MAX; //0x28;
-        uintptr_t method_slot = UINTPTR_MAX; //0x34;
-        uintptr_t method_get_is_generic = UINTPTR_MAX; //0x5B75358;
-        uintptr_t method_get_parameter_name = UINTPTR_MAX; //0x9B6F3C8;
+        uintptr_t method_name = UINTPTR_MAX; // 0x18
+        uintptr_t method_return_type = UINTPTR_MAX; // 0x28
+        uintptr_t method_get_flags = UINTPTR_MAX; // 0x60822E4
+        uintptr_t method_parameters_count = UINTPTR_MAX; // 0x0
+        uintptr_t method_get_parameter = UINTPTR_MAX; // 0x9B6E678
+        uintptr_t method_pointer = UINTPTR_MAX; // 0x48
+        uintptr_t method_virtual_pointer = UINTPTR_MAX; // 0x30
+        uintptr_t method_slot = UINTPTR_MAX; // 0x52
+        uintptr_t method_get_is_generic = UINTPTR_MAX; // 0x5B76558
+        uintptr_t method_get_parameter_name = UINTPTR_MAX; // 0x9B6E698
     } offsets;
 
     [[nodiscard]] uintptr_t getUnityBase() const { return m_libunity.getBase(); }

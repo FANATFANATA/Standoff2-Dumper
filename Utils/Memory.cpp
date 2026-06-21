@@ -607,7 +607,7 @@ uintptr_t Memory::findTypeGetName(ModuleInfo module) {
                                                                          "72 42 01 89 9A").front();
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
     return bl.target - g.memory->getUnityBase();
-}
+}//
 
 uintptr_t Memory::findPropertyName(ModuleInfo module) {
     Il2Cpp::Class *object = g.il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
