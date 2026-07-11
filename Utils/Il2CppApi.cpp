@@ -64,9 +64,9 @@ std::vector<Il2Cpp::Class*> Il2CppApi::getClasses(Il2Cpp::Image *image) {
     int typeCount = getTypeCount(image);
     for (int i = 0; i < typeCount; i++) {
         void *type_handle = get_assembly_type_handle(image, i);
-        if (type_handle) {
+        if (g.memory->isPtrValid(reinterpret_cast<uintptr_t>(type_handle))) {
             Il2Cpp::Class *type = get_type_from_handle(type_handle);
-            if (type) {
+            if (g.memory->isPtrValid(reinterpret_cast<uintptr_t>(type))) {
                 result.push_back(type);
             }
         }

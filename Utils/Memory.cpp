@@ -123,7 +123,7 @@ bool Memory::initialize() {
         if (offsets.class_get_fields == UINTPTR_MAX) offsets.class_get_fields = findClassGetFields(module); log_progress("class_get_fields", offsets.class_get_fields);
         if (offsets.class_get_properties == UINTPTR_MAX) offsets.class_get_properties = findClassGetProperties(module); log_progress("class_get_properties", offsets.class_get_properties);
         if (offsets.class_get_methods == UINTPTR_MAX) offsets.class_get_methods = findClassGetMethods(module); log_progress("class_get_methods", offsets.class_get_methods);
-        if (offsets.class_type == UINTPTR_MAX) offsets.class_type = findClassGetType(module); log_progress("class_type", offsets.class_type);
+        if (offsets.class_type == UINTPTR_MAX) offsets.class_type = findClassType(module); log_progress("class_type", offsets.class_type);
         if (offsets.class_get_enum_basetype == UINTPTR_MAX) offsets.class_get_enum_basetype = findClassGetEnumBasetype(module); log_progress("class_get_enum_basetype", offsets.class_get_enum_basetype);
         if (offsets.class_get_flags == UINTPTR_MAX) offsets.class_get_flags = findClassGetFlags(module); log_progress("class_get_flags", offsets.class_get_flags);
         if (offsets.class_get_interfaces == UINTPTR_MAX) offsets.class_get_interfaces = findClassGetInterfaces(module); log_progress("class_get_interfaces", offsets.class_get_interfaces);
@@ -380,11 +380,8 @@ uintptr_t Memory::findAssemblyGetImage(ModuleInfo module) {
 }
 
 uintptr_t Memory::findImageTypeCount(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 F3 03 00 AA ? ? ? 94 ? ? ? ? ? ? ? "
-                                                                         "91 E0 03 13 AA").front();
-    Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
-
-    uintptr_t function_address = bl.target;
+    uintptr_t function_address = g.memory->getUnityBase() + module.findPattern("? ? ? D1 ? ? ? F9 ? ? ? A9 ? ? ? A9 "
+                                                                               "F3 03 00 AA ? ? ? F9 F4 03 02 AA").front();
 
     uintptr_t ldr_address = function_address + 0x58;
     Assembler::ldr ldr = Assembler::ldr(ldr_address, *reinterpret_cast<uint32_t*>(ldr_address));
@@ -398,7 +395,7 @@ uintptr_t Memory::findGetAssemblyTypeHandle(ModuleInfo module) {
 }
 
 uintptr_t Memory::findGetTypeFromHandle(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 ? ? ? 97 ? ? ? B8").front();
+    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 97 F9 03 00 AA ? ? ? F9 E1 03 18 AA").front();
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
     return bl.target - g.memory->getUnityBase();
 }
@@ -461,8 +458,8 @@ uintptr_t Memory::findClassGetMethods(ModuleInfo module) {
     return bl.target - g.memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassGetType(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 E2 03 00 AA ? ? ? 39").front();
+uintptr_t Memory::findClassType(ModuleInfo module) {
+    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 97 ? ? ? 39 F8 03 1F AA").front();
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
 
     uintptr_t function_address = bl.target;
@@ -473,7 +470,7 @@ uintptr_t Memory::findClassGetType(ModuleInfo module) {
 }
 
 uintptr_t Memory::findClassGetEnumBasetype(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 E2 03 00 AA ? ? ? 39").front();
+    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 97 ? ? ? 39 F8 03 1F AA").front();
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
     return bl.target - g.memory->getUnityBase();
 }
@@ -495,7 +492,7 @@ uintptr_t Memory::findClassGetDeclaringType(ModuleInfo module) {
 
 uintptr_t Memory::findClassGetIsGeneric(ModuleInfo module) {
     uintptr_t function_address = g.memory->getUnityBase() + module.findPattern("? ? ? F8 ? ? ? A9 ? ? ? A9 ? ? ? A9 ? ? ? F9 F3 03 01 2A ? ? ? 52").front();
-    uintptr_t bl_address = function_address + 0x40;
+    uintptr_t bl_address = function_address + 0x3C;
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
     return bl.target - g.memory->getUnityBase();
 }
@@ -523,8 +520,7 @@ uintptr_t Memory::findFieldGetDefaultValue(ModuleInfo module) {
 }
 
 uintptr_t Memory::findTypeGetType(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 ? ? ? 71 ? ? ? B9 ? ? ? 54 ? ? ? 52",
-        false).back();
+    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 ? ? ? 71 ? ? ? B9 ? ? ? 54 ? ? ? 52").front();
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
     return bl.target - g.memory->getUnityBase();
 }
@@ -590,9 +586,7 @@ uintptr_t Memory::findTypeAttrsShift(ModuleInfo module) {
 
 
 uintptr_t Memory::findTypeGetClassFromType(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 E1 03 13 AA F8 03 00 AA").front();
-    Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
-    return bl.target - g.memory->getUnityBase();
+    return module.findPattern("? ? ? A9 ? ? ? A9 ? ? ? 39 F3 03 00 AA F4 03 01 2A E0 03 15 2A").front();
 }
 
 uintptr_t Memory::findTypeGetData(ModuleInfo module) {
@@ -603,11 +597,11 @@ uintptr_t Memory::findTypeGetData(ModuleInfo module) {
 }
 
 uintptr_t Memory::findTypeGetName(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 ? ? ? 39 ? ? ? F9 ? ? ? B2 ? ? ? "
-                                                                         "72 42 01 89 9A").front();
+    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 ? ? ? 39 ? ? ? A9 ? ? ? D3 ? ? ? "
+                                                                         "72 E1 02 89 9A").front();
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
     return bl.target - g.memory->getUnityBase();
-}//
+}
 
 uintptr_t Memory::findPropertyName(ModuleInfo module) {
     Il2Cpp::Class *object = g.il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
@@ -837,8 +831,8 @@ uintptr_t Memory::findMethodGetIsGeneric(ModuleInfo module) {
 }
 
 uintptr_t Memory::findMethodGetParameterName(ModuleInfo module) {
-    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 ? ? ? B4 ? ? ? 94 E1 03 00 AA ? ? "
-                                                                         "? 14 E1 03 1F AA").front();
+    uintptr_t bl_address = g.memory->getUnityBase() + module.findPattern("? ? ? 94 ? ? ? F9 ? ? ? F8 ? ? ? 91 ? ? ? "
+                                                                         "F9 ? ? ? 39").front();
     Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
     return bl.target - g.memory->getUnityBase();
 }

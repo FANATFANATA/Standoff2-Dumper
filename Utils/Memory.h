@@ -56,7 +56,7 @@ private:
     uintptr_t findClassGetFields(ModuleInfo module);
     uintptr_t findClassGetProperties(ModuleInfo module);
     uintptr_t findClassGetMethods(ModuleInfo module);
-    uintptr_t findClassGetType(ModuleInfo module);
+    uintptr_t findClassType(ModuleInfo module);
     uintptr_t findClassGetEnumBasetype(ModuleInfo module);
     uintptr_t findClassGetFlags(ModuleInfo module);
     uintptr_t findClassGetInterfaces(ModuleInfo module);
@@ -93,64 +93,64 @@ private:
 public:
 
     struct {
-        uintptr_t assemblies_start = UINTPTR_MAX; // 0xADD7138
-        uintptr_t assemblies_end = UINTPTR_MAX; // 0xADD7140
+        uintptr_t assemblies_start = UINTPTR_MAX; // 0xB025BF8
+        uintptr_t assemblies_end = UINTPTR_MAX; // 0xB025C00
 
         //assembly
-        uintptr_t assembly_open = UINTPTR_MAX; // 0x5B7A554
-        uintptr_t assembly_name = UINTPTR_MAX; // 0x18
-        uintptr_t assembly_get_image = UINTPTR_MAX; // 0x5B7A54C
+        uintptr_t assembly_open = UINTPTR_MAX; // 0x5C8AF60
+        uintptr_t assembly_name = UINTPTR_MAX; // 0x10
+        uintptr_t assembly_get_image = UINTPTR_MAX; // 0x5C8AF58
 
         // image
-        uintptr_t image_type_count = UINTPTR_MAX; // 0x44
-        uintptr_t image_get_assembly_type_handle = UINTPTR_MAX; // 0x9B6C8C4
-        uintptr_t handle_get_type_from_handle = UINTPTR_MAX; // 0x9B6CD48
-        uintptr_t image_name = UINTPTR_MAX; // 0x30
+        uintptr_t image_type_count = UINTPTR_MAX; // 0xC
+        uintptr_t image_get_assembly_type_handle = UINTPTR_MAX; // 0x9D8A424
+        uintptr_t handle_get_type_from_handle = UINTPTR_MAX; // 0x9D5DEB8
+        uintptr_t image_name = UINTPTR_MAX; // 0x10
 
         // class
-        uintptr_t class_get_name = UINTPTR_MAX; // 0x9B3BB74
-        uintptr_t class_namespace = UINTPTR_MAX; // 0xF0
-        uintptr_t class_get_parent = UINTPTR_MAX; // 0x9B3BC68
-        uintptr_t class_get_fields = UINTPTR_MAX; // 0x9B3B728
-        uintptr_t class_get_properties = UINTPTR_MAX; // 0x9B3BC70
-        uintptr_t class_get_methods = UINTPTR_MAX; // 0x9B3B988
-        uintptr_t class_type = UINTPTR_MAX; // 0x20
-        uintptr_t class_get_enum_basetype = UINTPTR_MAX; // 0x9B3B644
-        uintptr_t class_get_flags = UINTPTR_MAX; // 0x5B76368
-        uintptr_t class_get_interfaces = UINTPTR_MAX; // 0x9B3B8C0
-        uintptr_t class_get_declaring_type = UINTPTR_MAX; // 0x9B3E44C
-        uintptr_t class_get_is_generic = UINTPTR_MAX; // 0x9B3C1FC
+        uintptr_t class_get_name = UINTPTR_MAX; // 0x9D596AC
+        uintptr_t class_namespace = UINTPTR_MAX; // 0xB0
+        uintptr_t class_get_parent = UINTPTR_MAX; // 0x9D597A0
+        uintptr_t class_get_fields = UINTPTR_MAX; // 0x9D59280
+        uintptr_t class_get_properties = UINTPTR_MAX; // 0x9D597A8
+        uintptr_t class_get_methods = UINTPTR_MAX; // 0x9D594C0
+        uintptr_t class_type = UINTPTR_MAX; // 0x98
+        uintptr_t class_get_enum_basetype = UINTPTR_MAX; // 0x9D5919C
+        uintptr_t class_get_flags = UINTPTR_MAX; // 0x5C86CE8
+        uintptr_t class_get_interfaces = UINTPTR_MAX; // 0x9D593F8
+        uintptr_t class_get_declaring_type = UINTPTR_MAX; // 0x9D5BFAC
+        uintptr_t class_get_is_generic = UINTPTR_MAX; // 0x9D59D54
 
         // field
-        uintptr_t field_get_name = UINTPTR_MAX; // 0x5B76840
-        uintptr_t field_get_offset = UINTPTR_MAX; // 0x4D7D72C
-        uintptr_t field_get_type = UINTPTR_MAX; // 0x4D7D730
-        uintptr_t field_get_default_value = UINTPTR_MAX; // 0x9B6C290
+        uintptr_t field_get_name = UINTPTR_MAX; // 0x5C871C0
+        uintptr_t field_get_offset = UINTPTR_MAX; // 0x4E8E0AC
+        uintptr_t field_get_type = UINTPTR_MAX; // 0x4E8E0B0
+        uintptr_t field_get_default_value = UINTPTR_MAX; // 0x9D89DF0
 
         // type
-        uintptr_t type_get_type = UINTPTR_MAX; // 0x4D7D744
-        uintptr_t type_attrs = UINTPTR_MAX; // 0x10
-        uintptr_t type_attrs_shift = UINTPTR_MAX; // 0x2
-        uintptr_t type_get_class_from_type = UINTPTR_MAX; // 0x9B3B06C
-        uintptr_t type_get_data = UINTPTR_MAX; // 0x9B7C880
-        uintptr_t type_get_name = UINTPTR_MAX; // 0x9B7C884
+        uintptr_t type_get_type = UINTPTR_MAX; // 0x4E8E0C4
+        uintptr_t type_attrs = UINTPTR_MAX; // 0x0
+        uintptr_t type_attrs_shift = UINTPTR_MAX; // 0x5
+        uintptr_t type_get_class_from_type = UINTPTR_MAX; // 0x9D58BD4
+        uintptr_t type_get_data = UINTPTR_MAX; // 0x9D9A45C
+        uintptr_t type_get_name = UINTPTR_MAX; // 0x9D9A460
 
         // property
-        uintptr_t property_name = UINTPTR_MAX; // 0x10
-        uintptr_t property_get_method = UINTPTR_MAX; // 0x0
+        uintptr_t property_name = UINTPTR_MAX; // 0x28
+        uintptr_t property_get_method = UINTPTR_MAX; // 0x18
         uintptr_t property_set_method = UINTPTR_MAX; // 0x20
 
         // method
-        uintptr_t method_name = UINTPTR_MAX; // 0x18
-        uintptr_t method_return_type = UINTPTR_MAX; // 0x28
-        uintptr_t method_get_flags = UINTPTR_MAX; // 0x60822E4
-        uintptr_t method_parameters_count = UINTPTR_MAX; // 0x0
-        uintptr_t method_get_parameter = UINTPTR_MAX; // 0x9B6E678
-        uintptr_t method_pointer = UINTPTR_MAX; // 0x48
-        uintptr_t method_virtual_pointer = UINTPTR_MAX; // 0x30
-        uintptr_t method_slot = UINTPTR_MAX; // 0x52
-        uintptr_t method_get_is_generic = UINTPTR_MAX; // 0x5B76558
-        uintptr_t method_get_parameter_name = UINTPTR_MAX; // 0x9B6E698
+        uintptr_t method_name = UINTPTR_MAX; // 0x40
+        uintptr_t method_return_type = UINTPTR_MAX; // 0x58
+        uintptr_t method_get_flags = UINTPTR_MAX; // 0x634A1E0
+        uintptr_t method_parameters_count = UINTPTR_MAX; // 0x1D
+        uintptr_t method_get_parameter = UINTPTR_MAX; // 0x9D8C24C
+        uintptr_t method_pointer = UINTPTR_MAX; // 0x30
+        uintptr_t method_virtual_pointer = UINTPTR_MAX; // 0x8
+        uintptr_t method_slot = UINTPTR_MAX; // 0x10
+        uintptr_t method_get_is_generic = UINTPTR_MAX; // 0x5C86ED8
+        uintptr_t method_get_parameter_name = UINTPTR_MAX; // 0x9D8C26C
     } offsets;
 
     [[nodiscard]] uintptr_t getUnityBase() const { return m_libunity.getBase(); }
