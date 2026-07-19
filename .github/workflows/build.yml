@@ -15,6 +15,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup CMake 4.0
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '4.0.0'
+
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
