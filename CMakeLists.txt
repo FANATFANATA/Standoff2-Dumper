@@ -16,10 +16,20 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(KittyMemoryEx)
 
-file(GLOB CORE CONFIGURE_DEPENDS Core/*.cpp)
-file(GLOB INJECTION CONFIGURE_DEPENDS Injection/*.cpp)
-file(GLOB UTILS CONFIGURE_DEPENDS Utils/*.cpp)
-file(GLOB DUMPER CONFIGURE_DEPENDS Dumper/*.cpp)
+set(CORE
+    Core/LimeWare.cpp
+)
+set(INJECTION
+    Injection/Injection.cpp
+)
+set(UTILS
+    Utils/Memory.cpp
+    Utils/Log.cpp
+    Utils/Il2CppApi.cpp
+)
+set(DUMPER
+    Dumper/Dumper.cpp
+)
 file(GLOB_RECURSE KITTYMEMORYEX CONFIGURE_DEPENDS ${kittymemoryex_SOURCE_DIR}/KittyMemoryEx/*.cpp)
 
 add_executable(${PROJECT_NAME}
@@ -62,10 +72,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND adb push "$<TARGET_FILE:${PROJECT_NAME}>" "/storage/emulated/0/${PROJECT_NAME}.so"
-        COMMAND adb shell "su -c 'mv /storage/emulated/0/${PROJECT_NAME}.so /data/local/tmp/${PROJECT_NAME}.so'"
-        COMMAND adb shell "su -c 'chmod +x /data/local/tmp/${PROJECT_NAME}.so'"
-        COMMAND adb shell "su -c '/data/local/tmp/${PROJECT_NAME}.so'"
-        COMMENT "Deploying ${PROJECT_NAME} to device..."
-        VERBATIM
+    COMMAND adb push "$<TARGET_FILE:${PROJECT_NAME}>" "/data/local/tmp/${PROJECT_NAME}.so"
+    COMMAND adb shell "su -c 'chmod +x /data/local/tmp/${PROJECT_NAME}.so'"
+    COMMAND adb shell "su -c '/data/local/tmp/${PROJECT_NAME}.so'"
+    COMMENT "Deploying ${PROJECT_NAME} to device..."
+    VERBATIM
 )

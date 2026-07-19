@@ -142,7 +142,7 @@ bool Injection::inject() {
 }
 
 bool Injection::shutdown() {
-    return m_trace.Detach();//
+    return m_trace.Detach();
 }
 
 
