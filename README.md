@@ -11,7 +11,7 @@
 - Logcat Reader Professional (опционально, для отладки)
 ## Использование
 1. Переместите собранный дампер в `/data/local/tmp/` на вашем устройстве
-2. Запустите собранный дампер командой `./<имя файла>.so` из консоли или MT Manager
+2. Запустите собранный дампер командой `su -c "./LimeWare-Standoff2-Dumper"` из консоли или c помощью MT Manager, выбрав в нем запуск с рут правами.
 3. Откройте Logcat Reader Professional и дождитесь сообщения "Dumped!"
 4. Готовый `dump.cs` будет сгенерирован в `/storage/emulated/Android/obb/com.axlebolt.standoff2/dump.cs`
 ## Дисклеймер
