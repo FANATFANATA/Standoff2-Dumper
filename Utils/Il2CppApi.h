@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <vector>
 
-namespace Il2Cpp {
+namespace Il2Cpp
+{
     typedef void Domain;
     typedef void Assembly;
     typedef void Image;
@@ -18,34 +19,34 @@ namespace Il2Cpp {
     typedef void GenericClass;
 }
 
-
-class Il2CppApi {
+class Il2CppApi
+{
 public:
     Il2CppApi() = default;
     ~Il2CppApi() = default;
 
     bool initialize();
 
-    Il2Cpp::Assembly* openAssembly(const char* name);
-    std::vector<Il2Cpp::Assembly*> getAssemblies();
+    Il2Cpp::Assembly *openAssembly(const char *name);
+    std::vector<Il2Cpp::Assembly *> getAssemblies();
     const char *getAssemblyName(Il2Cpp::Assembly *assembly);
     Il2Cpp::Image *getImage(Il2Cpp::Assembly *assembly);
 
     int getTypeCount(Il2Cpp::Image *image);
-    std::vector<Il2Cpp::Class*> getClasses(Il2Cpp::Image *image);
+    std::vector<Il2Cpp::Class *> getClasses(Il2Cpp::Image *image);
     const char *getImageName(Il2Cpp::Image *image);
 
-    Il2Cpp::Class *getClassFromName(const char *assembly, const  char *name);
+    Il2Cpp::Class *getClassFromName(const char *assembly, const char *name);
     const char *getClassName(Il2Cpp::Class *klass);
     const char *getClassNamespace(Il2Cpp::Class *klass);
     Il2Cpp::Class *getParent(Il2Cpp::Class *klass);
-    std::vector<Il2Cpp::Field*> getFields(Il2Cpp::Class *klass);
-    std::vector<Il2Cpp::Property*> getProperties(Il2Cpp::Class *klass);
-    std::vector<Il2Cpp::Method*> getMethods(Il2Cpp::Class *klass);
+    std::vector<Il2Cpp::Field *> getFields(Il2Cpp::Class *klass);
+    std::vector<Il2Cpp::Property *> getProperties(Il2Cpp::Class *klass);
+    std::vector<Il2Cpp::Method *> getMethods(Il2Cpp::Class *klass);
     Il2Cpp::Type *getThisType(Il2Cpp::Class *klass);
     bool isClassEnum(Il2Cpp::Class *klass);
     uint64_t getClassFlags(Il2Cpp::Class *klass);
-    std::vector<Il2Cpp::Class*> getInterfaces(Il2Cpp::Class *klass);
+    std::vector<Il2Cpp::Class *> getInterfaces(Il2Cpp::Class *klass);
     Il2Cpp::Class *getDeclaringClass(Il2Cpp::Class *klass);
     bool getIsGeneric(Il2Cpp::Class *klass);
 
@@ -80,5 +81,4 @@ public:
     const char *getParameterName(Il2Cpp::Method *method, size_t index);
 };
 
-
-#endif //LIMEWARE_STANDOFF2_DUMPER_IL2CPPAPI_H
+#endif // LIMEWARE_STANDOFF2_DUMPER_IL2CPPAPI_H

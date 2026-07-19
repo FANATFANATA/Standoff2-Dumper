@@ -5,12 +5,12 @@
 
 #include <vector>
 
+class Dumper
+{
 
-class Dumper {
-
-    std::vector<Il2Cpp::Assembly*> m_vecAssemblies;
-    std::vector<Il2Cpp::Image*> m_vecImages;
-    std::vector<Il2Cpp::Class*> m_vecClasses;
+    std::vector<Il2Cpp::Assembly *> m_vecAssemblies;
+    std::vector<Il2Cpp::Image *> m_vecImages;
+    std::vector<Il2Cpp::Class *> m_vecClasses;
 
     std::string getTypeIndexStr(Il2Cpp::Type *type);
 
@@ -35,6 +35,5 @@ public:
     bool initialize();
     void dump(const char *path);
 };
-
 
 #endif

@@ -4,8 +4,10 @@
 #include <cstdint>
 #include <sys/types.h>
 
-namespace Assembler {
-    struct adrp {
+namespace Assembler
+{
+    struct adrp
+    {
         uintptr_t address;
         uintptr_t opcode;
 
@@ -18,7 +20,8 @@ namespace Assembler {
 
         uint64_t page_address;
 
-        explicit adrp(uintptr_t a, uintptr_t o) {
+        explicit adrp(uintptr_t a, uintptr_t o)
+        {
             address = a;
             opcode = o;
 
@@ -33,7 +36,8 @@ namespace Assembler {
         }
     };
 
-    struct ldr {
+    struct ldr
+    {
         uintptr_t address;
         uintptr_t opcode;
 
@@ -42,7 +46,8 @@ namespace Assembler {
         uint32_t imm12;
         uint32_t offset;
 
-        explicit ldr(uintptr_t a, uintptr_t o) {
+        explicit ldr(uintptr_t a, uintptr_t o)
+        {
             address = a;
             opcode = o;
 
@@ -53,7 +58,8 @@ namespace Assembler {
         }
     };
 
-    struct add {
+    struct add
+    {
         uintptr_t address;
         uintptr_t opcode;
 
@@ -62,7 +68,8 @@ namespace Assembler {
         uint32_t imm12;
         uint32_t offset;
 
-        explicit add(uintptr_t a, uintptr_t o) {
+        explicit add(uintptr_t a, uintptr_t o)
+        {
             address = a;
             opcode = o;
 
@@ -73,7 +80,8 @@ namespace Assembler {
         }
     };
 
-    struct bl {
+    struct bl
+    {
         uintptr_t address;
         uintptr_t opcode;
 
@@ -81,12 +89,14 @@ namespace Assembler {
         int64_t offset;
         uintptr_t target;
 
-        explicit bl(uintptr_t a, uintptr_t o) {
+        explicit bl(uintptr_t a, uintptr_t o)
+        {
             address = a;
             opcode = o;
 
             imm26 = opcode & 0x03FFFFFF;
-            if (imm26 & 1 << 25) {
+            if (imm26 & 1 << 25)
+            {
                 imm26 -= 1 << 26;
             }
             offset = imm26 << 2;
@@ -95,7 +105,8 @@ namespace Assembler {
         }
     };
 
-    struct str {
+    struct str
+    {
         uintptr_t address;
         uintptr_t opcode;
 
@@ -104,7 +115,8 @@ namespace Assembler {
         uint32_t imm12;
         uint32_t offset;
 
-        explicit str(uintptr_t a, uintptr_t o) {
+        explicit str(uintptr_t a, uintptr_t o)
+        {
             address = a;
             opcode = o;
 
@@ -115,7 +127,8 @@ namespace Assembler {
         }
     };
 
-    struct b {
+    struct b
+    {
         uintptr_t address;
         uintptr_t opcode;
 
@@ -123,12 +136,14 @@ namespace Assembler {
         int64_t offset;
         uintptr_t target;
 
-        explicit b(uintptr_t a, uintptr_t o) {
+        explicit b(uintptr_t a, uintptr_t o)
+        {
             address = a;
             opcode = o;
 
             imm26 = opcode & 0x03FFFFFF;
-            if (imm26 & 1 << 25) {
+            if (imm26 & 1 << 25)
+            {
                 imm26 -= 1 << 26;
             }
             offset = imm26 << 2;
@@ -137,7 +152,8 @@ namespace Assembler {
         }
     };
 
-    struct ubfx {
+    struct ubfx
+    {
         uintptr_t address;
         uintptr_t opcode;
 
@@ -151,7 +167,8 @@ namespace Assembler {
         uint8_t lsb;
         uint8_t width;
 
-        explicit ubfx(uintptr_t a, uintptr_t o) {
+        explicit ubfx(uintptr_t a, uintptr_t o)
+        {
             address = a;
             opcode = o;
 
@@ -167,11 +184,13 @@ namespace Assembler {
             width = imms - immr + 1;
         }
 
-        [[nodiscard]] bool isValid() const {
+        [[nodiscard]] bool isValid() const
+        {
             uint32_t masked = opcode & 0xFFC00000;
             bool isUbfm = (masked == 0xD3400000) || (masked == 0x53000000);
 
-            if (!isUbfm) return false;
+            if (!isUbfm)
+                return false;
             uint8_t check_imms = (opcode >> 10) & 0x3F;
             uint8_t check_immr = (opcode >> 16) & 0x3F;
 
@@ -179,6 +198,5 @@ namespace Assembler {
         }
     };
 };
-
 
 #endif

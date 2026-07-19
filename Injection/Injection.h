@@ -6,7 +6,8 @@
 
 #include "KittyMemoryEx/KittyMemoryMgr.hpp"
 
-class Injection {
+class Injection
+{
 
     pid_t m_pid = 0;
     KittyTraceMgr m_trace;
@@ -21,6 +22,5 @@ public:
     bool inject();
     bool shutdown();
 };
-
 
 #endif
