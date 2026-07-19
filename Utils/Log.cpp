@@ -17,7 +17,7 @@ void Log::info(const char *fmt, ...) {
 
     __android_log_vprint(ANDROID_LOG_INFO, "[LimeWare]", fmt, args);
 
-    char buffer[1024];
+    char buffer[4096];
     vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
     std::cout << "[INFO] " << buffer << std::endl;
 
@@ -34,7 +34,7 @@ void Log::debug(const char *fmt, ...) {
 
     __android_log_vprint(ANDROID_LOG_DEBUG, "[LimeWare]", fmt, args);
 
-    char buffer[1024];
+    char buffer[4096];
     vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
     std::cout << "[DEBUG] " << buffer << std::endl;
 
@@ -51,7 +51,7 @@ void Log::error(const char *fmt, ...) {
 
     __android_log_vprint(ANDROID_LOG_ERROR, "[LimeWare]", fmt, args);
 
-    char buffer[1024];
+    char buffer[4096];
     vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
     std::cout << "[ERROR] " << buffer << std::endl;
 
@@ -68,7 +68,7 @@ void Log::warning(const char *fmt, ...) {
 
     __android_log_vprint(ANDROID_LOG_WARN, "[LimeWare]", fmt, args);
 
-    char buffer[1024];
+    char buffer[4096];
     vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
     std::cout << "[WARN] " << buffer << std::endl;
 
@@ -85,7 +85,7 @@ void Log::fatal(const char *fmt, ...) {
 
     __android_log_vprint(ANDROID_LOG_FATAL, "[LimeWare]", fmt, args);
 
-    char buffer[1024];
+    char buffer[4096];
     vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
     std::cout << "[FATAL] " << buffer << std::endl;
 

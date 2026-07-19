@@ -3,6 +3,7 @@
 //
 
 #include "LimeWare.h"
+#include <KittyMemoryEx/KittyMemOp.hpp>
 
 bool LimeWare::initialize(bool inject) {
     if (inject) {

@@ -5,6 +5,7 @@
 #ifndef LIMEWARE_STANDOFF2_DUMPER_INJECTION_H
 #define LIMEWARE_STANDOFF2_DUMPER_INJECTION_H
 
+#include <memory>
 #include <sys/types.h>
 
 #include "KittyMemoryEx/KittyMemoryMgr.hpp"

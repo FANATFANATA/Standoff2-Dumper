@@ -409,8 +409,7 @@ std::string Dumper::dumpMethod(Il2Cpp::Method *method) {
     uintptr_t va = g().il2cpp->getMethodVirtualAddress(method) - g().memory->getUnityBase();
     uintptr_t rva = g().il2cpp->getMethodRealVirtualAddress(method) - g().memory->getUnityBase();
 
-    result += "// RVA: " + (std::stringstream() << "0x" << std::hex << std::uppercase << rva).str() + " Offset: " +
-        (std::stringstream() << "0x" << std::hex << std::uppercase << rva).str() + " VA: " +
+    result += "// RVA: " + (std::stringstream() << "0x" << std::hex << std::uppercase << rva).str() + " VA: " +
             (std::stringstream() << "0x" << std::hex << std::uppercase << va).str() +
                 (g().il2cpp->getMethodSlot(method) != 65535 ? " Slot: " + std::to_string(g().il2cpp->getMethodSlot(method)) : "") + "\n\t";
 
@@ -484,10 +483,7 @@ std::string Dumper::dumpClass(Il2Cpp::Class *klass) {
                 }
             }
 
-            if (g().il2cpp->getInterfaces(klass).size() > 1) {
-                result.pop_back();
-                result.pop_back();
-            }
+
         }
 
         result += "\n{";

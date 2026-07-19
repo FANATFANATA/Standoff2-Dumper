@@ -6,8 +6,10 @@
 #define LIMEWARE_STANDOFF2_DUMPER_MEMORY_H
 
 
-#include <string>
+#include <cstdint>
 #include <functional>
+#include <string>
+#include <vector>
 
 class Memory {
 public:

@@ -230,7 +230,7 @@ Memory::ModuleInfo Memory::getModuleInfo(const char *name, const std::function<v
     while (fgets(line, sizeof line, f)) {
         uintptr_t tmp_base, tmp_end;
         char perms[128], path[256];
-        if (sscanf(line, "%" PRIXPTR "-%" PRIXPTR " %4s %*s %*s %*s %s", &tmp_base, &tmp_end, perms, path) > 0) {
+        if (sscanf(line, "%" PRIXPTR "-%" PRIXPTR " %4s %*s %*s %*s %255s", &tmp_base, &tmp_end, perms, path) > 0) {
             if (!strcmp(basename(path), name)) {
                 int permissions = (perms[0] == 'r' ? (1 << 1) : 0) |
                                   (perms[1] == 'w' ? (1 << 2) : 0) |
@@ -333,14 +333,6 @@ void Memory::dumpHexToFile(uintptr_t address, size_t size, const std::string& fi
 bool Memory::isPtrValid(uintptr_t address) const {
     if ((address & 0xFFFFFFFFFFFFFF) <= 0x1000000000 || !address) {
         return false;
-    }
-    static int fd = open("/dev/random", O_WRONLY);
-    if (fd != -1) {
-        if (write(fd, reinterpret_cast<void *>(address), 1) == -1) {
-            if (errno == EFAULT) {
-                return false;
-            }
-        }
     }
 
     unsigned char vec;

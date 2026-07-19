@@ -5,8 +5,8 @@
 #ifndef LIMEWARE_STANDOFF2_DUMPER_ASSEMBLER_H
 #define LIMEWARE_STANDOFF2_DUMPER_ASSEMBLER_H
 
+#include <cstdint>
 #include <sys/types.h>
-#include "LimeWare.h"
 
 namespace Assembler {
     struct adrp {
