@@ -71,6 +71,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         hexdump_path="/storage/emulated/0/Android/obb/com.axlebolt.standoff2/"
 )
 
+option(LIMEWARE_DEPLOY "Deploy to device via adb after build" ON)
+
+if(LIMEWARE_DEPLOY)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND adb push "$<TARGET_FILE:${PROJECT_NAME}>" "/data/local/tmp/${PROJECT_NAME}.so"
     COMMAND adb shell "su -c 'chmod +x /data/local/tmp/${PROJECT_NAME}.so'"
@@ -78,3 +81,4 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMENT "Deploying ${PROJECT_NAME} to device..."
     VERBATIM
 )
+endif()
