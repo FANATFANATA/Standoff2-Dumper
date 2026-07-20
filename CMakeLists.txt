@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.0)
-project(LimeWare-Standoff2-Dumper)
+project(Standoff2-Dumper)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,7 +22,7 @@ set(UTILS
 set(DUMPER
     Dumper/Dumper.cpp
 )
-file(GLOB_RECURSE KITTYMEMORYEX CONFIGURE_DEPENDS ${KITTYMEMORYEX_DIR}/KittyMemoryEx/*.cpp)
+file(GLOB_RECURSE KITTYMEMORYEX CONFIGURE_DEPENDS ${KITTYMEMORYEX_DIR}/*.cpp)
 
 add_executable(${PROJECT_NAME}
         main.cpp
@@ -63,13 +63,13 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         hexdump_path="/storage/emulated/0/Android/obb/com.axlebolt.standoff2/"
 )
 
-option(LIMEWARE_DEPLOY "Deploy to device via adb after build" ON)
+option(DEPLOY "Deploy to device via adb after build" ON)
 
-if(LIMEWARE_DEPLOY)
+if(DEPLOY)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND adb push "$<TARGET_FILE:${PROJECT_NAME}>" "/data/local/tmp/${PROJECT_NAME}.so"
-    COMMAND adb shell "su -c 'chmod +x /data/local/tmp/${PROJECT_NAME}.so'"
-    COMMAND adb shell "su -c '/data/local/tmp/${PROJECT_NAME}.so'"
+    COMMAND adb push "$<TARGET_FILE:${PROJECT_NAME}>" "/data/local/tmp/${PROJECT_NAME}"
+    COMMAND adb shell "su -c 'chmod +x /data/local/tmp/${PROJECT_NAME}'"
+    COMMAND adb shell "su -c '/data/local/tmp/${PROJECT_NAME}'"
     COMMENT "Deploying ${PROJECT_NAME} to device..."
     VERBATIM
 )
