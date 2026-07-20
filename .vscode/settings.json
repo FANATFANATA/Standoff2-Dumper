@@ -1,0 +1,7 @@
+{
+  "cmake.generator": "Ninja",
+  "cmake.configureArgs": [
+    "-DCMAKE_TOOLCHAIN_FILE=C:/android-ndk-r27d/build/cmake/android.toolchain.cmake",
+    "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+  ]
+}

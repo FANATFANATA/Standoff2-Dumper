@@ -11,11 +11,10 @@ extern "C" {
 #include "keystone.h"
 
 typedef enum ks_err_asm_sparc {
-    KS_ERR_ASM_SPARC_INVALIDOPERAND = KS_ERR_ASM_ARCH,
-    KS_ERR_ASM_SPARC_MISSINGFEATURE,
-    KS_ERR_ASM_SPARC_MNEMONICFAIL,
+  KS_ERR_ASM_SPARC_INVALIDOPERAND = KS_ERR_ASM_ARCH,
+  KS_ERR_ASM_SPARC_MISSINGFEATURE,
+  KS_ERR_ASM_SPARC_MNEMONICFAIL,
 } ks_err_asm_sparc;
-
 
 #ifdef __cplusplus
 }

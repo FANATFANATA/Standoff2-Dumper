@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "name": "Android",
+      "compilerPath": "C:/android-ndk-r27d/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe",
+      "intelliSenseMode": "windows-clang-arm64",
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+    }
+  ],
+  "version": 4
+}

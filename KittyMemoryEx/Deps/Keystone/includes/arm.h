@@ -11,9 +11,9 @@ extern "C" {
 #include "keystone.h"
 
 typedef enum ks_err_asm_arm {
-    KS_ERR_ASM_ARM_INVALIDOPERAND = KS_ERR_ASM_ARCH,
-    KS_ERR_ASM_ARM_MISSINGFEATURE,
-    KS_ERR_ASM_ARM_MNEMONICFAIL,
+  KS_ERR_ASM_ARM_INVALIDOPERAND = KS_ERR_ASM_ARCH,
+  KS_ERR_ASM_ARM_MISSINGFEATURE,
+  KS_ERR_ASM_ARM_MNEMONICFAIL,
 } ks_err_asm_arm;
 
 #ifdef __cplusplus

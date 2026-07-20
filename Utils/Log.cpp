@@ -1,95 +1,91 @@
 #include "Log.h"
 
-#include <cstdarg>
-#include <iostream>
 #include <android/log.h>
 
-void Log::info(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
+#include <cstdarg>
+#include <iostream>
 
-    va_list args_copy;
-    va_copy(args_copy, args);
+void Log::info(const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
 
-    __android_log_vprint(ANDROID_LOG_INFO, "[LimeWare]", fmt, args);
+  va_list args_copy;
+  va_copy(args_copy, args);
 
-    char buffer[4096];
-    vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
-    std::cout << "[INFO] " << buffer << std::endl;
+  __android_log_vprint(ANDROID_LOG_INFO, "[Dumper]", fmt, args);
 
-    va_end(args_copy);
-    va_end(args);
+  char buffer[4096];
+  vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
+  std::cout << "[INFO] " << buffer << std::endl;
+
+  va_end(args_copy);
+  va_end(args);
 }
 
-void Log::debug(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
+void Log::debug(const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
 
-    va_list args_copy;
-    va_copy(args_copy, args);
+  va_list args_copy;
+  va_copy(args_copy, args);
 
-    __android_log_vprint(ANDROID_LOG_DEBUG, "[LimeWare]", fmt, args);
+  __android_log_vprint(ANDROID_LOG_DEBUG, "[Dumper]", fmt, args);
 
-    char buffer[4096];
-    vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
-    std::cout << "[DEBUG] " << buffer << std::endl;
+  char buffer[4096];
+  vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
+  std::cout << "[DEBUG] " << buffer << std::endl;
 
-    va_end(args_copy);
-    va_end(args);
+  va_end(args_copy);
+  va_end(args);
 }
 
-void Log::error(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
+void Log::error(const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
 
-    va_list args_copy;
-    va_copy(args_copy, args);
+  va_list args_copy;
+  va_copy(args_copy, args);
 
-    __android_log_vprint(ANDROID_LOG_ERROR, "[LimeWare]", fmt, args);
+  __android_log_vprint(ANDROID_LOG_ERROR, "[Dumper]", fmt, args);
 
-    char buffer[4096];
-    vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
-    std::cout << "[ERROR] " << buffer << std::endl;
+  char buffer[4096];
+  vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
+  std::cout << "[ERROR] " << buffer << std::endl;
 
-    va_end(args_copy);
-    va_end(args);
+  va_end(args_copy);
+  va_end(args);
 }
 
-void Log::warning(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
+void Log::warning(const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
 
-    va_list args_copy;
-    va_copy(args_copy, args);
+  va_list args_copy;
+  va_copy(args_copy, args);
 
-    __android_log_vprint(ANDROID_LOG_WARN, "[LimeWare]", fmt, args);
+  __android_log_vprint(ANDROID_LOG_WARN, "[Dumper]", fmt, args);
 
-    char buffer[4096];
-    vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
-    std::cout << "[WARN] " << buffer << std::endl;
+  char buffer[4096];
+  vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
+  std::cout << "[WARN] " << buffer << std::endl;
 
-    va_end(args_copy);
-    va_end(args);
+  va_end(args_copy);
+  va_end(args);
 }
 
-void Log::fatal(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
+void Log::fatal(const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
 
-    va_list args_copy;
-    va_copy(args_copy, args);
+  va_list args_copy;
+  va_copy(args_copy, args);
 
-    __android_log_vprint(ANDROID_LOG_FATAL, "[LimeWare]", fmt, args);
+  __android_log_vprint(ANDROID_LOG_FATAL, "[Dumper]", fmt, args);
 
-    char buffer[4096];
-    vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
-    std::cout << "[FATAL] " << buffer << std::endl;
+  char buffer[4096];
+  vsnprintf(buffer, sizeof(buffer), fmt, args_copy);
+  std::cout << "[FATAL] " << buffer << std::endl;
 
-    va_end(args_copy);
-    va_end(args);
+  va_end(args_copy);
+  va_end(args);
 }

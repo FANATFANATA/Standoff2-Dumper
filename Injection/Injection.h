@@ -1,26 +1,26 @@
-#ifndef LIMEWARE_STANDOFF2_DUMPER_INJECTION_H
-#define LIMEWARE_STANDOFF2_DUMPER_INJECTION_H
+#ifndef STANDOFF2_DUMPER_INJECTION_H
+#define STANDOFF2_DUMPER_INJECTION_H
+
+#include <sys/types.h>
 
 #include <memory>
-#include <sys/types.h>
 
 #include "KittyMemoryMgr.hpp"
 
-class Injection
-{
-
-    pid_t m_pid = 0;
-    KittyTraceMgr m_trace;
-    std::unique_ptr<KittyMemoryMgr> kitty_memory;
+class Injection {
+  pid_t m_pid = 0;
+  KittyTraceMgr m_trace;
+  std::unique_ptr<KittyMemoryMgr> kitty_memory;
 
 public:
-    explicit Injection(std::unique_ptr<KittyMemoryMgr> memory) : kitty_memory(std::move(memory)) {}
-    ~Injection() = default;
+  explicit Injection(std::unique_ptr<KittyMemoryMgr> memory) : kitty_memory(std::move(memory)) {
+  }
+  ~Injection() = default;
 
-    bool start();
-    bool initialize();
-    bool inject();
-    bool shutdown();
+  bool start();
+  bool initialize();
+  bool inject();
+  bool shutdown();
 };
 
 #endif

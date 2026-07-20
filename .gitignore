@@ -1,2 +1,3 @@
 \build
 \.giga*
+*.tmp*
