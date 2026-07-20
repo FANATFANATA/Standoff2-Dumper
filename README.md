@@ -1,6 +1,6 @@
 # Standoff 2 Dumper
 
-[![Build](https://github.com/FANATFANATA/Standoff2-Dumper/actions/workflows/build.yml/badge.svg)]
+[![Build](https://github.com/FANATFANATA/Standoff2-Dumper/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/FANATFANATA/Standoff2-Dumper/actions/workflows/build.yml)
 
 ## Особенности
 
