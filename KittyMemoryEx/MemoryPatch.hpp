@@ -7,7 +7,8 @@
 /**
  * @brief Defines the architecture types for asm memory patches.
  */
-enum MP_ASM_ARCH {
+enum MP_ASM_ARCH
+{
   MP_ASM_ARM32 = 0,
   MP_ASM_ARM64,
   MP_ASM_x86,
@@ -28,11 +29,12 @@ enum MP_ASM_ARCH {
  * - Modifying the memory target to apply the patch
  * - Retrieving the hex strings of current, original, and patch bytes
  */
-class MemoryPatch {
+class MemoryPatch
+{
   friend class MemoryPatchMgr;
 
 private:
-  IKittyMemOp* _pMem;
+  IKittyMemOp *_pMem;
 
   uintptr_t _address;
   size_t _size;
@@ -44,7 +46,7 @@ public:
   MemoryPatch();
   ~MemoryPatch();
 
-  MemoryPatch(IKittyMemOp* pMem, uintptr_t absolute_address, const void* patch_code,
+  MemoryPatch(IKittyMemOp *pMem, uintptr_t absolute_address, const void *patch_code,
               size_t patch_size);
 
   /**
@@ -91,19 +93,22 @@ public:
 /**
  * @brief The MemoryPatch manager class.
  */
-class MemoryPatchMgr {
+class MemoryPatchMgr
+{
 private:
-  IKittyMemOp* _pMem;
+  IKittyMemOp *_pMem;
 
 public:
-  MemoryPatchMgr() : _pMem(nullptr) {
+  MemoryPatchMgr() : _pMem(nullptr)
+  {
   }
 
   /**
    * @brief Constructor for MemoryPatchMgr.
    * @param pMem A pointer to the memory operation object.
    */
-  MemoryPatchMgr(IKittyMemOp* pMem) : _pMem(pMem) {
+  MemoryPatchMgr(IKittyMemOp *pMem) : _pMem(pMem)
+  {
   }
 
   /**
@@ -114,7 +119,7 @@ public:
    * @param patch_code A pointer to the patch code to be applied.
    * @param patch_size The size of the patch code in bytes.
    */
-  MemoryPatch createWithBytes(uintptr_t absolute_address, const void* patch_code,
+  MemoryPatch createWithBytes(uintptr_t absolute_address, const void *patch_code,
                               size_t patch_size);
 
   /**
@@ -138,6 +143,6 @@ public:
    * @return A MemoryPatch object representing the created patch.
    */
   MemoryPatch createWithAsm(uintptr_t absolute_address, MP_ASM_ARCH asm_arch,
-                            const std::string& asm_code, uintptr_t asm_address = 0);
+                            const std::string &asm_code, uintptr_t asm_address = 0);
 #endif
 };

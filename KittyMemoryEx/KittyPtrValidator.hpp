@@ -23,9 +23,11 @@
  * This class uses Mach kernel APIs to determine the read, write, and execute
  * permissions of a memory address.
  */
-class KittyPtrValidator {
+class KittyPtrValidator
+{
 private:
-  struct RegionInfo {
+  struct RegionInfo
+  {
     uintptr_t start;
     uintptr_t end;
     bool readable;
@@ -33,10 +35,12 @@ private:
     bool executable;
 
     RegionInfo(uintptr_t s, uintptr_t e, bool r, bool w, bool x)
-        : start(s), end(e), readable(r), writable(w), executable(x) {
+        : start(s), end(e), readable(r), writable(w), executable(x)
+    {
     }
 
-    inline bool canMergeWith(const RegionInfo& other) const {
+    inline bool canMergeWith(const RegionInfo &other) const
+    {
       return end == other.start && readable == other.readable && writable == other.writable &&
              executable == other.executable;
     }
@@ -48,14 +52,15 @@ private:
   bool use_cache_ = true;
   size_t last_region_index_ = 0;
 
-  bool _findRegion(uintptr_t addr, RegionInfo* region);
+  bool _findRegion(uintptr_t addr, RegionInfo *region);
 
 public:
   KittyPtrValidator()
       : task_(mach_task_self()),
         page_size_(sysconf(_SC_PAGESIZE)),
         use_cache_(false),
-        last_region_index_(0) {
+        last_region_index_(0)
+  {
   }
 
   /**
@@ -69,7 +74,8 @@ public:
       : task_(task),
         page_size_(sysconf(_SC_PAGESIZE)),
         use_cache_(use_cache),
-        last_region_index_(0) {
+        last_region_index_(0)
+  {
     if (use_cache_)
       refreshRegionCache();
   }
@@ -80,12 +86,16 @@ public:
    * @param use_cache True to use cached region information, false to clear the
    * cache.
    */
-  inline void setUseCache(bool use_cache) {
+  inline void setUseCache(bool use_cache)
+  {
     use_cache_ = use_cache;
-    if (!use_cache_) {
+    if (!use_cache_)
+    {
       cachedRegions_.clear();
       last_region_index_ = 0;
-    } else {
+    }
+    else
+    {
       refreshRegionCache();
     }
   }
@@ -97,7 +107,7 @@ public:
    * @param len The length of the memory range to check.
    * @return true if the memory address is readable, false otherwise.
    */
-  bool isPtrReadable(uintptr_t ptr, size_t len = sizeof(void*));
+  bool isPtrReadable(uintptr_t ptr, size_t len = sizeof(void *));
 
   /**
    * @brief Checks if a pointer is writable.
@@ -106,7 +116,7 @@ public:
    * @param len The length of the memory range to check.
    * @return true if the memory address is writable, false otherwise.
    */
-  bool isPtrWritable(uintptr_t ptr, size_t len = sizeof(void*));
+  bool isPtrWritable(uintptr_t ptr, size_t len = sizeof(void *));
 
   /**
    * @brief Checks if a pointer is executable.
@@ -115,7 +125,7 @@ public:
    * @param len The length of the memory range to check.
    * @return true if the memory address is executable, false otherwise.
    */
-  bool isPtrExecutable(uintptr_t ptr, size_t len = sizeof(void*));
+  bool isPtrExecutable(uintptr_t ptr, size_t len = sizeof(void *));
 
   /**
    * @brief Checks if a pointer is within the address space of the current task.
@@ -123,30 +133,36 @@ public:
    * @param ptr The memory address to check.
    * @return true if the pointer is within the address space, false otherwise.
    */
-  inline bool isPtrInAddressSpace(uintptr_t ptr) {
+  inline bool isPtrInAddressSpace(uintptr_t ptr)
+  {
     if (ptr == 0)
       return false;
     RegionInfo region(0, 0, false, false, false);
     return _findRegion(ptr, &region);
   }
 
-  inline bool isPtrReadable(const void* ptr, size_t len = sizeof(void*)) {
+  inline bool isPtrReadable(const void *ptr, size_t len = sizeof(void *))
+  {
     return ptr && isPtrReadable(uintptr_t(ptr), len);
   }
-  inline bool isPtrWritable(const void* ptr, size_t len = sizeof(void*)) {
+  inline bool isPtrWritable(const void *ptr, size_t len = sizeof(void *))
+  {
     return ptr && isPtrWritable(uintptr_t(ptr), len);
   }
-  inline bool isPtrExecutable(const void* ptr, size_t len = sizeof(void*)) {
+  inline bool isPtrExecutable(const void *ptr, size_t len = sizeof(void *))
+  {
     return ptr && isPtrExecutable(uintptr_t(ptr), len);
   }
-  inline bool isPtrInAddressSpace(const void* ptr) {
+  inline bool isPtrInAddressSpace(const void *ptr)
+  {
     return ptr && isPtrInAddressSpace(uintptr_t(ptr));
   }
 
   /**
    * @brief Clears the cached region information.
    */
-  inline void clearCache() {
+  inline void clearCache()
+  {
     cachedRegions_.clear();
     last_region_index_ = 0;
   }
@@ -161,7 +177,8 @@ public:
    *
    * @return A vector of RegionInfo objects representing the cached regions.
    */
-  inline std::vector<RegionInfo> cachedRegions() const {
+  inline std::vector<RegionInfo> cachedRegions() const
+  {
     return cachedRegions_;
   }
 };
@@ -174,9 +191,11 @@ public:
  * This class uses process maps to determine the read, write, and execute
  * permissions of a memory address.
  */
-class KittyPtrValidator {
+class KittyPtrValidator
+{
 private:
-  struct RegionInfo {
+  struct RegionInfo
+  {
     uintptr_t start;
     uintptr_t end;
     bool readable;
@@ -184,10 +203,12 @@ private:
     bool executable;
 
     RegionInfo(uintptr_t s, uintptr_t e, bool r, bool w, bool x)
-        : start(s), end(e), readable(r), writable(w), executable(x) {
+        : start(s), end(e), readable(r), writable(w), executable(x)
+    {
     }
 
-    inline bool canMergeWith(const RegionInfo& other) const {
+    inline bool canMergeWith(const RegionInfo &other) const
+    {
       return end == other.start && readable == other.readable && writable == other.writable &&
              executable == other.executable;
     }
@@ -199,16 +220,17 @@ private:
   bool use_cache_ = true;
   size_t last_region_index_ = 0;
 
-  bool _parseMapsLine(const char* line, RegionInfo* region);
+  bool _parseMapsLine(const char *line, RegionInfo *region);
 
-  bool _findRegion(uintptr_t addr, RegionInfo* region);
+  bool _findRegion(uintptr_t addr, RegionInfo *region);
 
 public:
   KittyPtrValidator()
       : pid_(getpid()),
         page_size_(sysconf(_SC_PAGESIZE)),
         use_cache_(false),
-        last_region_index_(0) {
+        last_region_index_(0)
+  {
   }
 
   /**
@@ -219,7 +241,8 @@ public:
    * @param use_cache Determines if the cache should be used.
    */
   KittyPtrValidator(pid_t pid, bool use_cache)
-      : pid_(pid), page_size_(sysconf(_SC_PAGESIZE)), use_cache_(use_cache), last_region_index_(0) {
+      : pid_(pid), page_size_(sysconf(_SC_PAGESIZE)), use_cache_(use_cache), last_region_index_(0)
+  {
     if (use_cache_)
       refreshRegionCache();
   }
@@ -230,12 +253,16 @@ public:
    * @param use_cache True to use cached region information, false to clear the
    * cache.
    */
-  inline void setUseCache(bool use_cache) {
+  inline void setUseCache(bool use_cache)
+  {
     use_cache_ = use_cache;
-    if (!use_cache_) {
+    if (!use_cache_)
+    {
       cachedRegions_.clear();
       last_region_index_ = 0;
-    } else {
+    }
+    else
+    {
       refreshRegionCache();
     }
   }
@@ -245,12 +272,14 @@ public:
    *
    * @param pid The process ID to query.
    */
-  inline void setPID(pid_t pid) {
+  inline void setPID(pid_t pid)
+  {
     cachedRegions_.clear();
     last_region_index_ = 0;
     pid_ = pid;
 
-    if (use_cache_) {
+    if (use_cache_)
+    {
       refreshRegionCache();
     }
   }
@@ -262,7 +291,7 @@ public:
    * @param len The length of the memory range to check.
    * @return true if the memory address is readable, false otherwise.
    */
-  bool isPtrReadable(uintptr_t ptr, size_t len = sizeof(void*));
+  bool isPtrReadable(uintptr_t ptr, size_t len = sizeof(void *));
 
   /**
    * @brief Checks if a pointer is writable.
@@ -271,7 +300,7 @@ public:
    * @param len The length of the memory range to check.
    * @return true if the memory address is writable, false otherwise.
    */
-  bool isPtrWritable(uintptr_t ptr, size_t len = sizeof(void*));
+  bool isPtrWritable(uintptr_t ptr, size_t len = sizeof(void *));
 
   /**
    * @brief Checks if a pointer is executable.
@@ -280,7 +309,7 @@ public:
    * @param len The length of the memory range to check.
    * @return true if the memory address is executable, false otherwise.
    */
-  bool isPtrExecutable(uintptr_t ptr, size_t len = sizeof(void*));
+  bool isPtrExecutable(uintptr_t ptr, size_t len = sizeof(void *));
 
   /**
    * @brief Checks if a pointer is within the address space of the current
@@ -289,7 +318,8 @@ public:
    * @param ptr The memory address to check.
    * @return true if the pointer is within the address space, false otherwise.
    */
-  inline bool isPtrInAddressSpace(uintptr_t ptr) {
+  inline bool isPtrInAddressSpace(uintptr_t ptr)
+  {
     if (ptr == 0)
       return false;
     ptr = KittyUtils::untagHeepPtr(ptr);
@@ -297,23 +327,28 @@ public:
     return _findRegion(ptr, &region);
   }
 
-  inline bool isPtrReadable(const void* ptr, size_t len = sizeof(void*)) {
+  inline bool isPtrReadable(const void *ptr, size_t len = sizeof(void *))
+  {
     return ptr && isPtrReadable(uintptr_t(ptr), len);
   }
-  inline bool isPtrWritable(const void* ptr, size_t len = sizeof(void*)) {
+  inline bool isPtrWritable(const void *ptr, size_t len = sizeof(void *))
+  {
     return ptr && isPtrWritable(uintptr_t(ptr), len);
   }
-  inline bool isPtrExecutable(const void* ptr, size_t len = sizeof(void*)) {
+  inline bool isPtrExecutable(const void *ptr, size_t len = sizeof(void *))
+  {
     return ptr && isPtrExecutable(uintptr_t(ptr), len);
   }
-  inline bool isPtrInAddressSpace(const void* ptr) {
+  inline bool isPtrInAddressSpace(const void *ptr)
+  {
     return ptr && isPtrInAddressSpace(uintptr_t(ptr));
   }
 
   /**
    * @brief Clears the cached region information.
    */
-  inline void clearCache() {
+  inline void clearCache()
+  {
     cachedRegions_.clear();
     last_region_index_ = 0;
   }
@@ -328,7 +363,8 @@ public:
    *
    * @return A vector of RegionInfo objects representing the cached regions.
    */
-  inline std::vector<RegionInfo> cachedRegions() const {
+  inline std::vector<RegionInfo> cachedRegions() const
+  {
     return cachedRegions_;
   }
 };

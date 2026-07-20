@@ -2,8 +2,10 @@
 
 #ifdef __APPLE__
 
-bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo* region) {
-  if (!use_cache_) {
+bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo *region)
+{
+  if (!use_cache_)
+  {
     vm_address_t address = addr & ~(page_size_ - 1);
     vm_size_t size = 0;
     natural_t nesting_depth = 0;
@@ -21,10 +23,12 @@ bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo* region) {
     return address <= addr && addr < address + size;
   }
 
-  if (!cachedRegions_.empty()) {
+  if (!cachedRegions_.empty())
+  {
     if (last_region_index_ < cachedRegions_.size() &&
         cachedRegions_[last_region_index_].start <= addr &&
-        addr < cachedRegions_[last_region_index_].end) {
+        addr < cachedRegions_[last_region_index_].end)
+    {
       *region = cachedRegions_[last_region_index_];
       return true;
     }
@@ -33,18 +37,23 @@ bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo* region) {
     size_t right = cachedRegions_.size();
     size_t best_match = right;
 
-    while (left < right) {
+    while (left < right)
+    {
       size_t mid = left + (right - left) / 2;
-      if (cachedRegions_[mid].end <= addr) {
+      if (cachedRegions_[mid].end <= addr)
+      {
         left = mid + 1;
-      } else {
+      }
+      else
+      {
         best_match = mid;
         right = mid;
       }
     }
 
     if (best_match < cachedRegions_.size() && cachedRegions_[best_match].start <= addr &&
-        addr < cachedRegions_[best_match].end) {
+        addr < cachedRegions_[best_match].end)
+    {
       last_region_index_ = best_match;
       *region = cachedRegions_[best_match];
       return true;
@@ -54,11 +63,13 @@ bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo* region) {
   return false;
 }
 
-void KittyPtrValidator::refreshRegionCache() {
+void KittyPtrValidator::refreshRegionCache()
+{
   cachedRegions_.clear();
   vm_address_t address = 0;
 
-  while (true) {
+  while (true)
+  {
     vm_size_t size = 0;
     natural_t nesting_depth = 0;
     vm_region_submap_short_info_data_64_t info{};
@@ -73,18 +84,23 @@ void KittyPtrValidator::refreshRegionCache() {
     bool executable = (info.protection & VM_PROT_EXECUTE) != 0;
     RegionInfo new_region(address, address + size, readable, writable, executable);
 
-    if (!cachedRegions_.empty() && cachedRegions_.back().canMergeWith(new_region)) {
+    if (!cachedRegions_.empty() && cachedRegions_.back().canMergeWith(new_region))
+    {
       cachedRegions_.back().end = new_region.end;
-    } else {
+    }
+    else
+    {
       cachedRegions_.emplace_back(new_region);
     }
 
     address += size;
   }
 
-  if (!cachedRegions_.empty()) {
+  if (!cachedRegions_.empty())
+  {
     std::sort(cachedRegions_.begin(), cachedRegions_.end(),
-              [](const RegionInfo& a, const RegionInfo& b) { return a.start < b.start; });
+              [](const RegionInfo &a, const RegionInfo &b)
+              { return a.start < b.start; });
   }
 
   last_region_index_ = 0;
@@ -92,18 +108,20 @@ void KittyPtrValidator::refreshRegionCache() {
 
 #else
 
-bool KittyPtrValidator::_parseMapsLine(const char* line, RegionInfo* region) {
+bool KittyPtrValidator::_parseMapsLine(const char *line, RegionInfo *region)
+{
   if (!line || *line == '\0')
     return false;
 
-  char* endPtr;
+  char *endPtr;
   uintptr_t start = (uintptr_t)strtoull(line, &endPtr, 16);
   if (*endPtr != '-')
     return false;
 
   uintptr_t end = (uintptr_t)strtoull(endPtr + 1, &endPtr, 16);
 
-  while (*endPtr == ' ') endPtr++;
+  while (*endPtr == ' ')
+    endPtr++;
 
   if (!endPtr[0] || !endPtr[1] || !endPtr[2])
     return false;
@@ -112,22 +130,27 @@ bool KittyPtrValidator::_parseMapsLine(const char* line, RegionInfo* region) {
   return true;
 }
 
-bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo* out) {
+bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo *out)
+{
   addr = KittyUtils::untagHeepPtr(addr);
-  if (!use_cache_) {
+  if (!use_cache_)
+  {
     bool found = false;
 
     char filePath[0xff] = {};
     snprintf(filePath, sizeof(filePath), "/proc/%d/maps", pid_);
-    FILE* fp = fopen(filePath, "r");
+    FILE *fp = fopen(filePath, "r");
     if (!fp)
       return false;
 
     char line[512];
-    while (fgets(line, sizeof(line), fp)) {
+    while (fgets(line, sizeof(line), fp))
+    {
       RegionInfo region(0, 0, false, false, false);
-      if (_parseMapsLine(line, &region)) {
-        if (addr >= region.start && addr < region.end) {
+      if (_parseMapsLine(line, &region))
+      {
+        if (addr >= region.start && addr < region.end)
+        {
           *out = region;
           found = true;
           break;
@@ -139,19 +162,24 @@ bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo* out) {
     return found;
   }
 
-  if (!cachedRegions_.empty()) {
-    if (last_region_index_ < cachedRegions_.size()) {
-      const auto& last = cachedRegions_[last_region_index_];
-      if (addr >= last.start && addr < last.end) {
+  if (!cachedRegions_.empty())
+  {
+    if (last_region_index_ < cachedRegions_.size())
+    {
+      const auto &last = cachedRegions_[last_region_index_];
+      if (addr >= last.start && addr < last.end)
+      {
         *out = last;
         return true;
       }
     }
 
     auto it = std::lower_bound(cachedRegions_.begin(), cachedRegions_.end(), addr,
-                               [](const RegionInfo& r, uintptr_t val) { return r.end <= val; });
+                               [](const RegionInfo &r, uintptr_t val)
+                               { return r.end <= val; });
 
-    if (it != cachedRegions_.end() && addr >= it->start && addr < it->end) {
+    if (it != cachedRegions_.end() && addr >= it->start && addr < it->end)
+    {
       *out = *it;
       last_region_index_ = std::distance(cachedRegions_.begin(), it);
       return true;
@@ -161,25 +189,31 @@ bool KittyPtrValidator::_findRegion(uintptr_t addr, RegionInfo* out) {
   return false;
 }
 
-void KittyPtrValidator::refreshRegionCache() {
+void KittyPtrValidator::refreshRegionCache()
+{
   cachedRegions_.clear();
   last_region_index_ = 0;
 
   char filePath[0xff] = {};
   snprintf(filePath, sizeof(filePath), "/proc/%d/maps", pid_);
 
-  FILE* fp = fopen(filePath, "r");
+  FILE *fp = fopen(filePath, "r");
   if (!fp)
     return;
 
   char line[512];
-  while (fgets(line, sizeof(line), fp)) {
+  while (fgets(line, sizeof(line), fp))
+  {
     RegionInfo region(0, 0, false, false, false);
 
-    if (_parseMapsLine(line, &region)) {
-      if (!cachedRegions_.empty() && cachedRegions_.back().canMergeWith(region)) {
+    if (_parseMapsLine(line, &region))
+    {
+      if (!cachedRegions_.empty() && cachedRegions_.back().canMergeWith(region))
+      {
         cachedRegions_.back().end = region.end;
-      } else {
+      }
+      else
+      {
         cachedRegions_.emplace_back(region);
       }
     }
@@ -187,15 +221,18 @@ void KittyPtrValidator::refreshRegionCache() {
 
   fclose(fp);
 
-  if (!cachedRegions_.empty()) {
+  if (!cachedRegions_.empty())
+  {
     std::sort(cachedRegions_.begin(), cachedRegions_.end(),
-              [](const RegionInfo& a, const RegionInfo& b) { return a.start < b.start; });
+              [](const RegionInfo &a, const RegionInfo &b)
+              { return a.start < b.start; });
   }
 }
 
 #endif
 
-bool KittyPtrValidator::isPtrReadable(uintptr_t ptr, size_t len) {
+bool KittyPtrValidator::isPtrReadable(uintptr_t ptr, size_t len)
+{
   if (ptr == 0 || ptr + len < ptr)
     return false;
 
@@ -203,7 +240,8 @@ bool KittyPtrValidator::isPtrReadable(uintptr_t ptr, size_t len) {
 
   uintptr_t end = ptr + len;
   RegionInfo region(0, 0, false, false, false);
-  while (region.end < end) {
+  while (region.end < end)
+  {
     if (!_findRegion(ptr, &region) || !region.readable)
       return false;
 
@@ -213,7 +251,8 @@ bool KittyPtrValidator::isPtrReadable(uintptr_t ptr, size_t len) {
   return true;
 }
 
-bool KittyPtrValidator::isPtrWritable(uintptr_t ptr, size_t len) {
+bool KittyPtrValidator::isPtrWritable(uintptr_t ptr, size_t len)
+{
   if (ptr == 0 || ptr + len < ptr)
     return false;
 
@@ -221,7 +260,8 @@ bool KittyPtrValidator::isPtrWritable(uintptr_t ptr, size_t len) {
 
   uintptr_t end = ptr + len;
   RegionInfo region(0, 0, false, false, false);
-  while (region.end < end) {
+  while (region.end < end)
+  {
     if (!_findRegion(ptr, &region) || !region.writable)
       return false;
 
@@ -231,7 +271,8 @@ bool KittyPtrValidator::isPtrWritable(uintptr_t ptr, size_t len) {
   return true;
 }
 
-bool KittyPtrValidator::isPtrExecutable(uintptr_t ptr, size_t len) {
+bool KittyPtrValidator::isPtrExecutable(uintptr_t ptr, size_t len)
+{
   if (ptr == 0 || ptr + len < ptr)
     return false;
 
@@ -239,7 +280,8 @@ bool KittyPtrValidator::isPtrExecutable(uintptr_t ptr, size_t len) {
 
   uintptr_t end = ptr + len;
   RegionInfo region(0, 0, false, false, false);
-  while (region.end < end) {
+  while (region.end < end)
+  {
     if (!_findRegion(ptr, &region) || !region.executable)
       return false;
 

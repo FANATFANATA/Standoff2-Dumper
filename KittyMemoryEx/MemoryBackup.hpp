@@ -11,11 +11,12 @@
  * range, restore the backup, and examine the current and original bytes of the
  * memory.
  */
-class MemoryBackup {
+class MemoryBackup
+{
   friend class MemoryBackupMgr;
 
 private:
-  IKittyMemOp* _pMem;
+  IKittyMemOp *_pMem;
 
   uintptr_t _address;
   size_t _size;
@@ -26,7 +27,7 @@ public:
   MemoryBackup();
   ~MemoryBackup();
 
-  MemoryBackup(IKittyMemOp* pMem, uintptr_t absolute_address, size_t backup_size);
+  MemoryBackup(IKittyMemOp *pMem, uintptr_t absolute_address, size_t backup_size);
 
   /**
    * @brief Checks if the memory backup is valid.
@@ -61,19 +62,22 @@ public:
 /**
  * @brief The MemoryBackup manager class.
  */
-class MemoryBackupMgr {
+class MemoryBackupMgr
+{
 private:
-  IKittyMemOp* _pMem;
+  IKittyMemOp *_pMem;
 
 public:
-  MemoryBackupMgr() : _pMem(nullptr) {
+  MemoryBackupMgr() : _pMem(nullptr)
+  {
   }
 
   /**
    * @brief Constructor for MemoryBackuphMgr.
    * @param pMem A pointer to the memory operation object.
    */
-  MemoryBackupMgr(IKittyMemOp* pMem) : _pMem(pMem) {
+  MemoryBackupMgr(IKittyMemOp *pMem) : _pMem(pMem)
+  {
   }
 
   /**

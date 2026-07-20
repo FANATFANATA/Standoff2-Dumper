@@ -5,7 +5,8 @@
 #include <cstdarg>
 #include <iostream>
 
-void Log::info(const char* fmt, ...) {
+void Log::info(const char *fmt, ...)
+{
   va_list args;
   va_start(args, fmt);
 
@@ -22,7 +23,8 @@ void Log::info(const char* fmt, ...) {
   va_end(args);
 }
 
-void Log::debug(const char* fmt, ...) {
+void Log::debug(const char *fmt, ...)
+{
   va_list args;
   va_start(args, fmt);
 
@@ -39,7 +41,8 @@ void Log::debug(const char* fmt, ...) {
   va_end(args);
 }
 
-void Log::error(const char* fmt, ...) {
+void Log::error(const char *fmt, ...)
+{
   va_list args;
   va_start(args, fmt);
 
@@ -56,7 +59,8 @@ void Log::error(const char* fmt, ...) {
   va_end(args);
 }
 
-void Log::warning(const char* fmt, ...) {
+void Log::warning(const char *fmt, ...)
+{
   va_list args;
   va_start(args, fmt);
 
@@ -73,7 +77,8 @@ void Log::warning(const char* fmt, ...) {
   va_end(args);
 }
 
-void Log::fatal(const char* fmt, ...) {
+void Log::fatal(const char *fmt, ...)
+{
   va_list args;
   va_start(args, fmt);
 

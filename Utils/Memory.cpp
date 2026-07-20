@@ -16,60 +16,80 @@
 #include "Core.h"
 #include "Il2CppApi.h"
 
-static uintptr_t safeFront(const std::vector<uintptr_t>& v) {
+static uintptr_t safeFront(const std::vector<uintptr_t> &v)
+{
   return v.empty() ? UINTPTR_MAX : v.front();
 }
-static uintptr_t safeBack(const std::vector<uintptr_t>& v) {
+static uintptr_t safeBack(const std::vector<uintptr_t> &v)
+{
   return v.empty() ? UINTPTR_MAX : v.back();
 }
 
-std::vector<uintptr_t> Memory::ModuleInfo::findPattern(const std::string& pattern,
-                                                       bool need_first_only) const {
+std::vector<uintptr_t> Memory::ModuleInfo::findPattern(const std::string &pattern,
+                                                       bool need_first_only) const
+{
   std::vector<uint8_t> bytes;
   std::string mask;
 
   std::istringstream iss(pattern);
   std::string token;
-  while (iss >> token) {
-    if (token == "?") {
+  while (iss >> token)
+  {
+    if (token == "?")
+    {
       bytes.push_back(0);
       mask.push_back('?');
-    } else if (token.size() == 2) {
-      auto is_hex = [](char c) { return std::isxdigit(static_cast<unsigned char>(c)); };
-      if (is_hex(token[0]) && is_hex(token[1])) {
+    }
+    else if (token.size() == 2)
+    {
+      auto is_hex = [](char c)
+      { return std::isxdigit(static_cast<unsigned char>(c)); };
+      if (is_hex(token[0]) && is_hex(token[1]))
+      {
         uint8_t byte = static_cast<uint8_t>(std::strtol(token.c_str(), nullptr, 16));
         bytes.push_back(byte);
         mask.push_back('x');
-      } else {
+      }
+      else
+      {
         return {};
       }
-    } else {
+    }
+    else
+    {
       return {};
     }
   }
 
   size_t scan_size = mask.size();
-  if (scan_size == 0 || scan_size > size) {
+  if (scan_size == 0 || scan_size > size)
+  {
     return {};
   }
 
   std::vector<uintptr_t> results;
-  const uint8_t* base_ptr = reinterpret_cast<const uint8_t*>(base);
+  const uint8_t *base_ptr = reinterpret_cast<const uint8_t *>(base);
   const size_t max_offset = size - scan_size;
 
-  for (size_t offset = 0; offset <= max_offset; ++offset) {
+  for (size_t offset = 0; offset <= max_offset; ++offset)
+  {
     bool found = true;
-    for (size_t j = 0; j < scan_size; ++j) {
-      if (mask[j] == 'x') {
-        if (base_ptr[offset + j] != bytes[j]) {
+    for (size_t j = 0; j < scan_size; ++j)
+    {
+      if (mask[j] == 'x')
+      {
+        if (base_ptr[offset + j] != bytes[j])
+        {
           found = false;
           break;
         }
       }
     }
-    if (found) {
+    if (found)
+    {
       results.push_back(offset + 0x4000);
-      if (need_first_only) {
+      if (need_first_only)
+      {
         break;
       }
     }
@@ -78,10 +98,12 @@ std::vector<uintptr_t> Memory::ModuleInfo::findPattern(const std::string& patter
   return results;
 }
 
-bool Memory::initialize() {
+bool Memory::initialize()
+{
   m_libunity = getModuleInfo("libunity.so");
 
-  getModuleInfo("libunity.so", [&](const ModuleInfo& module) {
+  getModuleInfo("libunity.so", [&](const ModuleInfo &module)
+                {
     if (module.size < 100000000) {
       return;
     }
@@ -159,14 +181,14 @@ bool Memory::initialize() {
     g().log->info("Method->virtual_pointer: %p", offsets.method_virtual_pointer);
     g().log->info("Method->slot: %p", offsets.method_slot);
     g().log->info("Method->isGeneric(): %p", offsets.method_get_is_generic);
-    g().log->info("Method->getParameterName(): %p", offsets.method_get_parameter_name);
-  });
+    g().log->info("Method->getParameterName(): %p", offsets.method_get_parameter_name); });
 
   return m_libunity.isValid();
 }
 
 void Memory::findPatternBasedOffsets(
-    const ModuleInfo& module, const std::function<void(const char*, uintptr_t)>& log_progress) {
+    const ModuleInfo &module, const std::function<void(const char *, uintptr_t)> &log_progress)
+{
   if (offsets.assemblies_start == UINTPTR_MAX)
     offsets.assemblies_start = findAssembliesStart(module);
   log_progress("assemblies_start", offsets.assemblies_start);
@@ -290,7 +312,8 @@ void Memory::findPatternBasedOffsets(
 }
 
 void Memory::findIl2CppBasedOffsets(
-    const ModuleInfo& module, const std::function<void(const char*, uintptr_t)>& log_progress) {
+    const ModuleInfo &module, const std::function<void(const char *, uintptr_t)> &log_progress)
+{
   if (offsets.class_namespace == UINTPTR_MAX)
     offsets.class_namespace = findClassNamespace(module);
   log_progress("class_namespace", offsets.class_namespace);
@@ -311,33 +334,41 @@ void Memory::findIl2CppBasedOffsets(
   log_progress("method_return_type", offsets.method_return_type);
 }
 
-Memory::ModuleInfo Memory::getModuleInfo(const char* name,
-                                         const std::function<void(ModuleInfo)>& callback) {
+Memory::ModuleInfo Memory::getModuleInfo(const char *name,
+                                         const std::function<void(ModuleInfo)> &callback)
+{
   ModuleInfo info = {};
-  FILE* f = fopen("/proc/self/maps", "rt");
-  if (!f) {
+  FILE *f = fopen("/proc/self/maps", "rt");
+  if (!f)
+  {
     return info;
   }
 
   char line[512];
-  while (fgets(line, sizeof line, f)) {
+  while (fgets(line, sizeof line, f))
+  {
     uintptr_t tmp_base, tmp_end;
     char perms[128], path[256];
     if (sscanf(line, "%" PRIXPTR "-%" PRIXPTR " %4s %*s %*s %*s %255s", &tmp_base, &tmp_end, perms,
-               path) > 0) {
-      if (!strcmp(basename(path), name)) {
+               path) > 0)
+    {
+      if (!strcmp(basename(path), name))
+      {
         int permissions = (perms[0] == 'r' ? (1 << 1) : 0) | (perms[1] == 'w' ? (1 << 2) : 0) |
                           (perms[2] == 'x' ? (1 << 3) : 0) | (perms[3] == 'p' ? (1 << 4) : 0);
 
-        if ((permissions & (1 << 1)) && (permissions & (1 << 4))) {
-          auto* elfHeader = reinterpret_cast<Elf64_Ehdr*>(tmp_base);
+        if ((permissions & (1 << 1)) && (permissions & (1 << 4)))
+        {
+          auto *elfHeader = reinterpret_cast<Elf64_Ehdr *>(tmp_base);
           if (elfHeader->e_ident[EI_MAG0] == ELFMAG0 && elfHeader->e_ident[EI_MAG1] == ELFMAG1 &&
-              elfHeader->e_ident[EI_MAG2] == ELFMAG2 && elfHeader->e_ident[EI_MAG3] == ELFMAG3) {
+              elfHeader->e_ident[EI_MAG2] == ELFMAG2 && elfHeader->e_ident[EI_MAG3] == ELFMAG3)
+          {
             info.path = path;
             info.base = tmp_base;
             info.end = tmp_end;
             info.size = tmp_end - tmp_base;
-            if (callback) {
+            if (callback)
+            {
               callback(info);
             }
           }
@@ -350,29 +381,40 @@ Memory::ModuleInfo Memory::getModuleInfo(const char* name,
   return info;
 }
 
-std::string Memory::dumpHex(uintptr_t address, size_t size) {
+std::string Memory::dumpHex(uintptr_t address, size_t size)
+{
   std::stringstream ss;
-  const unsigned char* p = reinterpret_cast<const unsigned char*>(address);
+  const unsigned char *p = reinterpret_cast<const unsigned char *>(address);
 
-  for (size_t i = 0; i < size; i += 16) {
+  for (size_t i = 0; i < size; i += 16)
+  {
     ss << std::setw(8) << std::setfill('0') << std::hex << (address + i) << ":  ";
 
-    for (size_t j = 0; j < 16; ++j) {
-      if (i + j < size) {
+    for (size_t j = 0; j < 16; ++j)
+    {
+      if (i + j < size)
+      {
         ss << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(p[i + j]) << " ";
-      } else {
+      }
+      else
+      {
         ss << "   ";
       }
     }
 
     ss << "  ";
 
-    for (size_t j = 0; j < 16; ++j) {
-      if (i + j < size) {
+    for (size_t j = 0; j < 16; ++j)
+    {
+      if (i + j < size)
+      {
         unsigned char ch = p[i + j];
-        if (ch >= 32 && ch <= 126) {
+        if (ch >= 32 && ch <= 126)
+        {
           ss << ch;
-        } else {
+        }
+        else
+        {
           ss << '.';
         }
       }
@@ -383,34 +425,46 @@ std::string Memory::dumpHex(uintptr_t address, size_t size) {
   return ss.str();
 }
 
-void Memory::dumpHexToFile(uintptr_t address, size_t size, const std::string& filePath) {
+void Memory::dumpHexToFile(uintptr_t address, size_t size, const std::string &filePath)
+{
   std::ofstream outFile(filePath);
 
-  if (!outFile.is_open()) {
+  if (!outFile.is_open())
+  {
     return;
   }
 
-  const unsigned char* p = reinterpret_cast<const unsigned char*>(address);
+  const unsigned char *p = reinterpret_cast<const unsigned char *>(address);
 
-  for (size_t i = 0; i < size; i += 8) {
+  for (size_t i = 0; i < size; i += 8)
+  {
     outFile << std::dec << std::setw(8) << std::setfill('0') << i << ":  ";
 
-    for (size_t j = 0; j < 8; ++j) {
-      if (i + j < size) {
+    for (size_t j = 0; j < 8; ++j)
+    {
+      if (i + j < size)
+      {
         outFile << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(p[i + j])
                 << " ";
-      } else {
+      }
+      else
+      {
         outFile << "   ";
       }
     }
 
     outFile << "  ";
-    for (size_t j = 0; j < 8; ++j) {
-      if (i + j < size) {
+    for (size_t j = 0; j < 8; ++j)
+    {
+      if (i + j < size)
+      {
         unsigned char ch = p[i + j];
-        if (ch >= 32 && ch <= 126) {
+        if (ch >= 32 && ch <= 126)
+        {
           outFile << ch;
-        } else {
+        }
+        else
+        {
           outFile << '.';
         }
       }
@@ -421,8 +475,10 @@ void Memory::dumpHexToFile(uintptr_t address, size_t size, const std::string& fi
   outFile.close();
 }
 
-bool Memory::isPtrValid(uintptr_t address) const {
-  if ((address & 0xFFFFFFFFFFFFFF) <= 0x1000000000 || !address) {
+bool Memory::isPtrValid(uintptr_t address) const
+{
+  if ((address & 0xFFFFFFFFFFFFFF) <= 0x1000000000 || !address)
+  {
     return false;
   }
 
@@ -430,35 +486,40 @@ bool Memory::isPtrValid(uintptr_t address) const {
   long pagesize = sysconf(_SC_PAGESIZE);
   uintptr_t page_addr = address & ~(pagesize - 1);
 
-  if (mincore(reinterpret_cast<void*>(page_addr), pagesize, &vec) != 0) {
+  if (mincore(reinterpret_cast<void *>(page_addr), pagesize, &vec) != 0)
+  {
     return false;
   }
 
-  if ((vec & 1) == 0) {
+  if ((vec & 1) == 0)
+  {
     return false;
   }
 
   return true;
 }
 
-uintptr_t Memory::findAssembliesStart(ModuleInfo module) {
+uintptr_t Memory::findAssembliesStart(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? ? ? ? ? 91 ? ? ? A9 BF 02 16 EB");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t adrp_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t add_address = adrp_address + 0x4;
 
-  Assembler::adrp adrp = Assembler::adrp(adrp_address, *reinterpret_cast<uint32_t*>(adrp_address));
-  Assembler::add add = Assembler::add(add_address, *reinterpret_cast<uint32_t*>(add_address));
+  Assembler::adrp adrp = Assembler::adrp(adrp_address, *reinterpret_cast<uint32_t *>(adrp_address));
+  Assembler::add add = Assembler::add(add_address, *reinterpret_cast<uint32_t *>(add_address));
 
   return adrp.page_address + add.offset - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findAssembliesEnd(ModuleInfo module) {
+uintptr_t Memory::findAssembliesEnd(ModuleInfo module)
+{
   return offsets.assemblies_start + 0x8;
 }
 
-uintptr_t Memory::findAssemblyOpen(ModuleInfo module) {
+uintptr_t Memory::findAssemblyOpen(ModuleInfo module)
+{
   auto pattern_result =
       module.findPattern("? ? ? F8 ? ? ? A9 ? ? ? A9 F3 03 00 AA ? ? ? 95 ? ? ? ? ? ? ? 91", false);
   if (pattern_result.empty())
@@ -466,7 +527,8 @@ uintptr_t Memory::findAssemblyOpen(ModuleInfo module) {
   return pattern_result.back();
 }
 
-uintptr_t Memory::findAssemblyName(ModuleInfo module) {
+uintptr_t Memory::findAssemblyName(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? F8 ? ? ? A9 ? ? ? A9 F3 03 00 "
       "AA ? ? ? 95 ? ? ? ? ? ? ? 91");
@@ -474,20 +536,22 @@ uintptr_t Memory::findAssemblyName(ModuleInfo module) {
     return UINTPTR_MAX;
   uintptr_t function_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t ldr_address = function_address + 0x3C;
-  Assembler::ldr ldr = Assembler::ldr(ldr_address, *reinterpret_cast<uint32_t*>(ldr_address));
+  Assembler::ldr ldr = Assembler::ldr(ldr_address, *reinterpret_cast<uint32_t *>(ldr_address));
   return ldr.offset;
 }
 
-uintptr_t Memory::findAssemblyGetImage(ModuleInfo module) {
+uintptr_t Memory::findAssemblyGetImage(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 97 ? ? ? 97 E8 03 13 AA", false);
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.back();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findImageTypeCount(ModuleInfo module) {
+uintptr_t Memory::findImageTypeCount(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? D1 ? ? ? F9 ? ? ? A9 ? ? ? A9 "
       "F3 03 00 AA ? ? ? F9 F4 03 02 AA");
@@ -496,28 +560,31 @@ uintptr_t Memory::findImageTypeCount(ModuleInfo module) {
   uintptr_t function_address = g().memory->getUnityBase() + pattern_result.front();
 
   uintptr_t ldr_address = function_address + 0x58;
-  Assembler::ldr ldr = Assembler::ldr(ldr_address, *reinterpret_cast<uint32_t*>(ldr_address));
+  Assembler::ldr ldr = Assembler::ldr(ldr_address, *reinterpret_cast<uint32_t *>(ldr_address));
 
   return ldr.offset;
 }
 
-uintptr_t Memory::findGetAssemblyTypeHandle(ModuleInfo module) {
+uintptr_t Memory::findGetAssemblyTypeHandle(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? F9 ? ? ? B9 08 01 01 0B");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   return pattern_result.front();
 }
 
-uintptr_t Memory::findGetTypeFromHandle(ModuleInfo module) {
+uintptr_t Memory::findGetTypeFromHandle(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 97 F9 03 00 AA ? ? ? F9 E1 03 18 AA");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findImageName(ModuleInfo module) {
+uintptr_t Memory::findImageName(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? F8 ? ? ? A9 ? ? ? A9 F3 03 00 "
       "AA ? ? ? 95 ? ? ? ? ? ? ? 91",
@@ -526,11 +593,12 @@ uintptr_t Memory::findImageName(ModuleInfo module) {
     return UINTPTR_MAX;
   uintptr_t function_address = g().memory->getUnityBase() + pattern_result.back();
   uintptr_t ldr_address = function_address + 0xA4;
-  Assembler::ldr ldr = Assembler::ldr(ldr_address, *reinterpret_cast<uint32_t*>(ldr_address));
+  Assembler::ldr ldr = Assembler::ldr(ldr_address, *reinterpret_cast<uint32_t *>(ldr_address));
   return ldr.offset;
 }
 
-uintptr_t Memory::findClassGetName(ModuleInfo module) {
+uintptr_t Memory::findClassGetName(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? D1 ? ? ? A9 ? ? ? A9 F3 03 01 AA "
       "F4 03 00 AA ? ? ? A9 ? ? ? ? ? ? ? 91");
@@ -538,18 +606,23 @@ uintptr_t Memory::findClassGetName(ModuleInfo module) {
     return UINTPTR_MAX;
   uintptr_t function_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t bl_address = function_address + 0x34;
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassNamespace(ModuleInfo module) {
-  Il2Cpp::Class* object = g().il2cpp->getClassFromName("mscorlib.dll", "Object");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object))) {
-    for (uintptr_t offset = 0; offset < 512; offset += 8) {
-      const char* namespaze =
-          *reinterpret_cast<const char**>(reinterpret_cast<uintptr_t>(object) + offset);
-      if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(namespaze))) {
-        if (!strcmp(namespaze, "System")) {
+uintptr_t Memory::findClassNamespace(ModuleInfo module)
+{
+  Il2Cpp::Class *object = g().il2cpp->getClassFromName("mscorlib.dll", "Object");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object)))
+  {
+    for (uintptr_t offset = 0; offset < 512; offset += 8)
+    {
+      const char *namespaze =
+          *reinterpret_cast<const char **>(reinterpret_cast<uintptr_t>(object) + offset);
+      if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(namespaze)))
+      {
+        if (!strcmp(namespaze, "System"))
+        {
           return offset;
         }
       }
@@ -558,7 +631,8 @@ uintptr_t Memory::findClassNamespace(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findClassGetParent(ModuleInfo module) {
+uintptr_t Memory::findClassGetParent(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? D1 ? ? ? F9 ? ? ? A9 ? ? ? A9 "
       "? ? ? A9 ? ? ? A9 F3 03 00 AA ? ? ? 97");
@@ -566,61 +640,67 @@ uintptr_t Memory::findClassGetParent(ModuleInfo module) {
     return UINTPTR_MAX;
   uintptr_t function_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t bl_address = function_address + 0x24;
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassGetFields(ModuleInfo module) {
+uintptr_t Memory::findClassGetFields(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 97 F4 03 00 AA ? ? ? B5 ? ? ? 17");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassGetProperties(ModuleInfo module) {
+uintptr_t Memory::findClassGetProperties(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 94 F7 03 00 AA ? ? ? B5 ? ? ? A9", false);
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.back();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassGetMethods(ModuleInfo module) {
+uintptr_t Memory::findClassGetMethods(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 94 ? ? ? B4 F6 03 00 AA ? ? ? 79");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassType(ModuleInfo module) {
+uintptr_t Memory::findClassType(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 97 ? ? ? 39 F8 03 1F AA");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
 
   uintptr_t function_address = bl.target;
   uintptr_t add_address = function_address + 0x4;
-  Assembler::add add = Assembler::add(add_address, *reinterpret_cast<uint32_t*>(add_address));
+  Assembler::add add = Assembler::add(add_address, *reinterpret_cast<uint32_t *>(add_address));
 
   return add.offset;
 }
 
-uintptr_t Memory::findClassGetEnumBasetype(ModuleInfo module) {
+uintptr_t Memory::findClassGetEnumBasetype(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 97 ? ? ? 39 F8 03 1F AA");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassGetFlags(ModuleInfo module) {
+uintptr_t Memory::findClassGetFlags(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? B9 C0 03 5F D6 ? ? ? 39 ? ? ? 53 C0 03 5F D6 ? "
       "? ? 39 ? ? ? 37 ? ? ? 39");
@@ -629,18 +709,20 @@ uintptr_t Memory::findClassGetFlags(ModuleInfo module) {
   return pattern_result.front();
 }
 
-uintptr_t Memory::findClassGetInterfaces(ModuleInfo module) {
+uintptr_t Memory::findClassGetInterfaces(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? 94 ? ? ? F9 ? ? ? B4 ? ? ? 91 ? ? ? "
       "91 ? ? ? 91 ? ? ? 94");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findClassGetDeclaringType(ModuleInfo module) {
+uintptr_t Memory::findClassGetDeclaringType(ModuleInfo module)
+{
   auto pattern_result =
       module.findPattern("? ? ? F9 C0 03 5F D6 ? ? ? F8 ? ? ? A9 ? ? ? 79", false);
   if (pattern_result.empty())
@@ -648,45 +730,50 @@ uintptr_t Memory::findClassGetDeclaringType(ModuleInfo module) {
   return pattern_result.back();
 }
 
-uintptr_t Memory::findClassGetIsGeneric(ModuleInfo module) {
+uintptr_t Memory::findClassGetIsGeneric(ModuleInfo module)
+{
   auto pattern_result =
       module.findPattern("? ? ? F8 ? ? ? A9 ? ? ? A9 ? ? ? A9 ? ? ? F9 F3 03 01 2A ? ? ? 52");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t function_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t bl_address = function_address + 0x3C;
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findFieldGetName(ModuleInfo module) {
+uintptr_t Memory::findFieldGetName(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 97 F5 03 00 AA E8 03 00 91");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findFieldGetOffset(ModuleInfo module) {
+uintptr_t Memory::findFieldGetOffset(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 94 FA 03 00 AA F8 03 1D 2A");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findFieldGetType(ModuleInfo module) {
+uintptr_t Memory::findFieldGetType(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 97 ? ? ? 97 ? ? ? B1", false);
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.back();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findFieldGetDefaultValue(ModuleInfo module) {
+uintptr_t Memory::findFieldGetDefaultValue(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? D1 ? ? ? F9 ? ? ? A9 ? ? ? A9 ? ? ? F9 F4 03 "
       "00 AA F3 03 01 AA ? ? ? F9");
@@ -695,16 +782,18 @@ uintptr_t Memory::findFieldGetDefaultValue(ModuleInfo module) {
   return pattern_result.front();
 }
 
-uintptr_t Memory::findTypeGetType(ModuleInfo module) {
+uintptr_t Memory::findTypeGetType(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 94 ? ? ? 71 ? ? ? B9 ? ? ? 54 ? ? ? 52");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findTypeAttrs(ModuleInfo module) {
+uintptr_t Memory::findTypeAttrs(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? D1 ? ? ? F9 ? ? ? A9 ? ? "
       "? A9 ? ? ? F9 F4 03 00 AA F3 03 01 "
@@ -714,34 +803,35 @@ uintptr_t Memory::findTypeAttrs(ModuleInfo module) {
   uintptr_t first_function_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t first_bl_address = first_function_address + 0xAC;
   Assembler::bl first_bl =
-      Assembler::bl(first_bl_address, *reinterpret_cast<uint32_t*>(first_bl_address));
+      Assembler::bl(first_bl_address, *reinterpret_cast<uint32_t *>(first_bl_address));
 
   uintptr_t second_function_address = first_bl.target;
   uintptr_t second_bl_address = second_function_address + 0x60;
   Assembler::bl second_bl =
-      Assembler::bl(second_bl_address, *reinterpret_cast<uint32_t*>(second_bl_address));
+      Assembler::bl(second_bl_address, *reinterpret_cast<uint32_t *>(second_bl_address));
 
   uintptr_t third_function_address = second_bl.target;
   uintptr_t third_bl_address = third_function_address + 0xC4;
   Assembler::bl third_bl =
-      Assembler::bl(third_bl_address, *reinterpret_cast<uint32_t*>(third_bl_address));
+      Assembler::bl(third_bl_address, *reinterpret_cast<uint32_t *>(third_bl_address));
 
   uintptr_t function_address = third_bl.target;
   uintptr_t root_bl_address = function_address + 0x60;
-  Assembler::bl bl = Assembler::bl(root_bl_address, *reinterpret_cast<uint32_t*>(root_bl_address));
+  Assembler::bl bl = Assembler::bl(root_bl_address, *reinterpret_cast<uint32_t *>(root_bl_address));
 
-  Assembler::b b = Assembler::b(bl.target, *reinterpret_cast<uint32_t*>(bl.target));
-  Assembler::b root_b = Assembler::b(b.target, *reinterpret_cast<uint32_t*>(b.target));
+  Assembler::b b = Assembler::b(bl.target, *reinterpret_cast<uint32_t *>(bl.target));
+  Assembler::b root_b = Assembler::b(b.target, *reinterpret_cast<uint32_t *>(b.target));
 
   uintptr_t root_function_address = root_b.target;
   uintptr_t root_ldr_address = root_function_address + 0x4;
 
   Assembler::ldr ldr =
-      Assembler::ldr(root_ldr_address, *reinterpret_cast<uint32_t*>(root_ldr_address));
+      Assembler::ldr(root_ldr_address, *reinterpret_cast<uint32_t *>(root_ldr_address));
   return ldr.offset;
 }
 
-uintptr_t Memory::findTypeAttrsShift(ModuleInfo module) {
+uintptr_t Memory::findTypeAttrsShift(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? D1 ? ? ? F9 ? ? ? A9 ? ? "
       "? A9 ? ? ? F9 F4 03 00 AA F3 03 01 "
@@ -751,34 +841,35 @@ uintptr_t Memory::findTypeAttrsShift(ModuleInfo module) {
   uintptr_t first_function_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t first_bl_address = first_function_address + 0xAC;
   Assembler::bl first_bl =
-      Assembler::bl(first_bl_address, *reinterpret_cast<uint32_t*>(first_bl_address));
+      Assembler::bl(first_bl_address, *reinterpret_cast<uint32_t *>(first_bl_address));
 
   uintptr_t second_function_address = first_bl.target;
   uintptr_t second_bl_address = second_function_address + 0x60;
   Assembler::bl second_bl =
-      Assembler::bl(second_bl_address, *reinterpret_cast<uint32_t*>(second_bl_address));
+      Assembler::bl(second_bl_address, *reinterpret_cast<uint32_t *>(second_bl_address));
 
   uintptr_t third_function_address = second_bl.target;
   uintptr_t third_bl_address = third_function_address + 0xC4;
   Assembler::bl third_bl =
-      Assembler::bl(third_bl_address, *reinterpret_cast<uint32_t*>(third_bl_address));
+      Assembler::bl(third_bl_address, *reinterpret_cast<uint32_t *>(third_bl_address));
 
   uintptr_t function_address = third_bl.target;
   uintptr_t root_bl_address = function_address + 0x60;
-  Assembler::bl bl = Assembler::bl(root_bl_address, *reinterpret_cast<uint32_t*>(root_bl_address));
+  Assembler::bl bl = Assembler::bl(root_bl_address, *reinterpret_cast<uint32_t *>(root_bl_address));
 
-  Assembler::b b = Assembler::b(bl.target, *reinterpret_cast<uint32_t*>(bl.target));
-  Assembler::b root_b = Assembler::b(b.target, *reinterpret_cast<uint32_t*>(b.target));
+  Assembler::b b = Assembler::b(bl.target, *reinterpret_cast<uint32_t *>(bl.target));
+  Assembler::b root_b = Assembler::b(b.target, *reinterpret_cast<uint32_t *>(b.target));
 
   uintptr_t root_function_address = root_b.target;
   uintptr_t root_ubfx_address = root_function_address + 0x8;
 
   Assembler::ubfx ubfx =
-      Assembler::ubfx(root_ubfx_address, *reinterpret_cast<uint32_t*>(root_ubfx_address));
+      Assembler::ubfx(root_ubfx_address, *reinterpret_cast<uint32_t *>(root_ubfx_address));
   return ubfx.isValid() ? ubfx.lsb : 0;
 }
 
-uintptr_t Memory::findTypeGetClassFromType(ModuleInfo module) {
+uintptr_t Memory::findTypeGetClassFromType(ModuleInfo module)
+{
   auto pattern_result =
       module.findPattern("? ? ? A9 ? ? ? A9 ? ? ? 39 F3 03 00 AA F4 03 01 2A E0 03 15 2A");
   if (pattern_result.empty())
@@ -786,37 +877,45 @@ uintptr_t Memory::findTypeGetClassFromType(ModuleInfo module) {
   return pattern_result.front();
 }
 
-uintptr_t Memory::findTypeGetData(ModuleInfo module) {
+uintptr_t Memory::findTypeGetData(ModuleInfo module)
+{
   uintptr_t class_from_type = findTypeGetClassFromType(module);
   if (class_from_type == UINTPTR_MAX)
     return UINTPTR_MAX;
   uintptr_t function_address = g().memory->getUnityBase() + class_from_type;
   uintptr_t bl_address = function_address + 0xC8;
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findTypeGetName(ModuleInfo module) {
+uintptr_t Memory::findTypeGetName(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? 94 ? ? ? 39 ? ? ? A9 ? ? ? D3 ? ? ? "
       "72 E1 02 89 9A");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findPropertyName(ModuleInfo module) {
-  Il2Cpp::Class* object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object))) {
-    Il2Cpp::Property* property = g().il2cpp->getProperties(object).at(0);
-    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property))) {
-      for (uintptr_t offset = 0; offset < 64; offset += 8) {
-        const char* name =
-            *reinterpret_cast<const char**>(reinterpret_cast<uintptr_t>(property) + offset);
-        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name))) {
-          if (!strcmp(name, "name")) {
+uintptr_t Memory::findPropertyName(ModuleInfo module)
+{
+  Il2Cpp::Class *object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object)))
+  {
+    Il2Cpp::Property *property = g().il2cpp->getProperties(object).at(0);
+    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property)))
+    {
+      for (uintptr_t offset = 0; offset < 64; offset += 8)
+      {
+        const char *name =
+            *reinterpret_cast<const char **>(reinterpret_cast<uintptr_t>(property) + offset);
+        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name)))
+        {
+          if (!strcmp(name, "name"))
+          {
             return offset;
           }
         }
@@ -826,20 +925,28 @@ uintptr_t Memory::findPropertyName(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findPropertyGetMethod(ModuleInfo module) {
-  Il2Cpp::Class* object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object))) {
-    Il2Cpp::Property* property = g().il2cpp->getProperties(object).at(0);
-    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property))) {
-      for (uintptr_t offset = 0; offset < 128; offset += 8) {
-        Il2Cpp::Method* method =
-            *reinterpret_cast<Il2Cpp::Method**>(reinterpret_cast<uintptr_t>(property) + offset);
-        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(method))) {
-          for (uintptr_t method_offset = 0; method_offset < 128; method_offset += 8) {
-            const char* name = *reinterpret_cast<const char**>(reinterpret_cast<uintptr_t>(method) +
-                                                               method_offset);
-            if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name))) {
-              if (!strcmp(name, "get_name")) {
+uintptr_t Memory::findPropertyGetMethod(ModuleInfo module)
+{
+  Il2Cpp::Class *object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object)))
+  {
+    Il2Cpp::Property *property = g().il2cpp->getProperties(object).at(0);
+    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property)))
+    {
+      for (uintptr_t offset = 0; offset < 128; offset += 8)
+      {
+        Il2Cpp::Method *method =
+            *reinterpret_cast<Il2Cpp::Method **>(reinterpret_cast<uintptr_t>(property) + offset);
+        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(method)))
+        {
+          for (uintptr_t method_offset = 0; method_offset < 128; method_offset += 8)
+          {
+            const char *name = *reinterpret_cast<const char **>(reinterpret_cast<uintptr_t>(method) +
+                                                                method_offset);
+            if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name)))
+            {
+              if (!strcmp(name, "get_name"))
+              {
                 return offset;
               }
             }
@@ -851,23 +958,32 @@ uintptr_t Memory::findPropertyGetMethod(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findPropertySetMethod(ModuleInfo module) {
-  Il2Cpp::Class* object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object))) {
-    Il2Cpp::Property* property = g().il2cpp->getProperties(object).at(0);
-    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property))) {
-      for (uintptr_t offset = 0; offset < 128; offset += 8) {
-        if (offset == offsets.property_get_method) {
+uintptr_t Memory::findPropertySetMethod(ModuleInfo module)
+{
+  Il2Cpp::Class *object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object)))
+  {
+    Il2Cpp::Property *property = g().il2cpp->getProperties(object).at(0);
+    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property)))
+    {
+      for (uintptr_t offset = 0; offset < 128; offset += 8)
+      {
+        if (offset == offsets.property_get_method)
+        {
           continue;
         }
-        Il2Cpp::Method* method =
-            *reinterpret_cast<Il2Cpp::Method**>(reinterpret_cast<uintptr_t>(property) + offset);
-        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(method))) {
-          for (uintptr_t method_offset = 0; method_offset < 128; method_offset += 8) {
-            const char* name = *reinterpret_cast<const char**>(reinterpret_cast<uintptr_t>(method) +
-                                                               method_offset);
-            if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name))) {
-              if (!strcmp(name, "set_name")) {
+        Il2Cpp::Method *method =
+            *reinterpret_cast<Il2Cpp::Method **>(reinterpret_cast<uintptr_t>(property) + offset);
+        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(method)))
+        {
+          for (uintptr_t method_offset = 0; method_offset < 128; method_offset += 8)
+          {
+            const char *name = *reinterpret_cast<const char **>(reinterpret_cast<uintptr_t>(method) +
+                                                                method_offset);
+            if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name)))
+            {
+              if (!strcmp(name, "set_name"))
+              {
                 return offset;
               }
             }
@@ -879,20 +995,28 @@ uintptr_t Memory::findPropertySetMethod(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodName(ModuleInfo module) {
-  Il2Cpp::Class* object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object))) {
-    Il2Cpp::Property* property = g().il2cpp->getProperties(object).at(0);
-    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property))) {
-      for (uintptr_t offset = 0; offset < 128; offset += 8) {
-        Il2Cpp::Method* method =
-            *reinterpret_cast<Il2Cpp::Method**>(reinterpret_cast<uintptr_t>(property) + offset);
-        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(method))) {
-          for (uintptr_t method_offset = 0; method_offset < 128; method_offset += 8) {
-            const char* name = *reinterpret_cast<const char**>(reinterpret_cast<uintptr_t>(method) +
-                                                               method_offset);
-            if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name))) {
-              if (!strcmp(name, "set_name")) {
+uintptr_t Memory::findMethodName(ModuleInfo module)
+{
+  Il2Cpp::Class *object = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(object)))
+  {
+    Il2Cpp::Property *property = g().il2cpp->getProperties(object).at(0);
+    if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(property)))
+    {
+      for (uintptr_t offset = 0; offset < 128; offset += 8)
+      {
+        Il2Cpp::Method *method =
+            *reinterpret_cast<Il2Cpp::Method **>(reinterpret_cast<uintptr_t>(property) + offset);
+        if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(method)))
+        {
+          for (uintptr_t method_offset = 0; method_offset < 128; method_offset += 8)
+          {
+            const char *name = *reinterpret_cast<const char **>(reinterpret_cast<uintptr_t>(method) +
+                                                                method_offset);
+            if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(name)))
+            {
+              if (!strcmp(name, "set_name"))
+              {
                 return method_offset;
               }
             }
@@ -904,16 +1028,23 @@ uintptr_t Memory::findMethodName(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodReturnType(ModuleInfo module) {
-  Il2Cpp::Class* klass = g().il2cpp->getClassFromName("mscorlib.dll", "RuntimeType");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass))) {
-    for (Il2Cpp::Method* method : g().il2cpp->getMethods(klass)) {
-      if (!strcmp(g().il2cpp->getMethodName(method), "GetEvents_native")) {
-        for (uintptr_t offset = 0; offset < 128; offset += 8) {
-          Il2Cpp::Type* t =
-              *reinterpret_cast<Il2Cpp::Type**>(reinterpret_cast<uintptr_t>(method) + offset);
-          if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(t))) {
-            if (g().il2cpp->getTypeIndex(t) == 0x18) {
+uintptr_t Memory::findMethodReturnType(ModuleInfo module)
+{
+  Il2Cpp::Class *klass = g().il2cpp->getClassFromName("mscorlib.dll", "RuntimeType");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass)))
+  {
+    for (Il2Cpp::Method *method : g().il2cpp->getMethods(klass))
+    {
+      if (!strcmp(g().il2cpp->getMethodName(method), "GetEvents_native"))
+      {
+        for (uintptr_t offset = 0; offset < 128; offset += 8)
+        {
+          Il2Cpp::Type *t =
+              *reinterpret_cast<Il2Cpp::Type **>(reinterpret_cast<uintptr_t>(method) + offset);
+          if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(t)))
+          {
+            if (g().il2cpp->getTypeIndex(t) == 0x18)
+            {
               return offset;
             }
           }
@@ -924,23 +1055,32 @@ uintptr_t Memory::findMethodReturnType(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodGetFlags(ModuleInfo module) {
-  Il2Cpp::Class* klass = g().il2cpp->getClassFromName("mscorlib.dll", "MonoMethodInfo");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass))) {
-    for (Il2Cpp::Method* method : g().il2cpp->getMethods(klass)) {
-      if (!strcmp(g().il2cpp->getMethodName(method), "get_method_attributes")) {
-        for (uintptr_t offset1 = 0; offset1 < 128; offset1 += 8) {
+uintptr_t Memory::findMethodGetFlags(ModuleInfo module)
+{
+  Il2Cpp::Class *klass = g().il2cpp->getClassFromName("mscorlib.dll", "MonoMethodInfo");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass)))
+  {
+    for (Il2Cpp::Method *method : g().il2cpp->getMethods(klass))
+    {
+      if (!strcmp(g().il2cpp->getMethodName(method), "get_method_attributes"))
+      {
+        for (uintptr_t offset1 = 0; offset1 < 128; offset1 += 8)
+        {
           uintptr_t va =
-              *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(method) + offset1);
-          if (g().memory->isPtrValid(va)) {
-            for (uintptr_t offset2 = 0; offset2 < 128; offset2 += 8) {
-              if (offset1 == offset2) {
+              *reinterpret_cast<uintptr_t *>(reinterpret_cast<uintptr_t>(method) + offset1);
+          if (g().memory->isPtrValid(va))
+          {
+            for (uintptr_t offset2 = 0; offset2 < 128; offset2 += 8)
+            {
+              if (offset1 == offset2)
+              {
                 continue;
               }
 
               uintptr_t rva =
-                  *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(method) + offset2);
-              if (va == rva) {
+                  *reinterpret_cast<uintptr_t *>(reinterpret_cast<uintptr_t>(method) + offset2);
+              if (va == rva)
+              {
                 return va - g().memory->getUnityBase();
               }
             }
@@ -952,16 +1092,22 @@ uintptr_t Memory::findMethodGetFlags(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodParametersCount(ModuleInfo module) {
-  Il2Cpp::Class* klass = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass))) {
-    for (Il2Cpp::Method* method : g().il2cpp->getMethods(klass)) {
+uintptr_t Memory::findMethodParametersCount(ModuleInfo module)
+{
+  Il2Cpp::Class *klass = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass)))
+  {
+    for (Il2Cpp::Method *method : g().il2cpp->getMethods(klass))
+    {
       if (!strcmp(g().il2cpp->getMethodName(method),
-                  "Internal_InstantiateSingleWithParent_Injected")) {
-        for (uintptr_t offset = 0; offset < 128; offset += 1) {
+                  "Internal_InstantiateSingleWithParent_Injected"))
+      {
+        for (uintptr_t offset = 0; offset < 128; offset += 1)
+        {
           int8_t parameters_count =
-              *reinterpret_cast<int8_t*>(reinterpret_cast<uintptr_t>(method) + offset);
-          if (parameters_count == 4) {
+              *reinterpret_cast<int8_t *>(reinterpret_cast<uintptr_t>(method) + offset);
+          if (parameters_count == 4)
+          {
             return offset;
           }
         }
@@ -971,28 +1117,36 @@ uintptr_t Memory::findMethodParametersCount(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodGetParameter(ModuleInfo module) {
+uintptr_t Memory::findMethodGetParameter(ModuleInfo module)
+{
   auto pattern_result = module.findPattern("? ? ? 39 1F 01 01 6B ? ? ? 54 ? ? ? F9 ? ? ? F8");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   return pattern_result.front();
 }
 
-uintptr_t Memory::findMethodPointer(ModuleInfo module) {
-  Il2Cpp::Class* klass = g().il2cpp->getClassFromName("mscorlib.dll", "MonoMethodInfo");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass))) {
-    Il2Cpp::Method* method = g().il2cpp->getMethods(klass).at(0);
-    for (uintptr_t offset1 = 0; offset1 < 128; offset1 += 8) {
-      uintptr_t va = *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(method) + offset1);
-      if (g().memory->isPtrValid(va)) {
-        for (uintptr_t offset2 = 0; offset2 < 128; offset2 += 8) {
-          if (offset1 == offset2) {
+uintptr_t Memory::findMethodPointer(ModuleInfo module)
+{
+  Il2Cpp::Class *klass = g().il2cpp->getClassFromName("mscorlib.dll", "MonoMethodInfo");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass)))
+  {
+    Il2Cpp::Method *method = g().il2cpp->getMethods(klass).at(0);
+    for (uintptr_t offset1 = 0; offset1 < 128; offset1 += 8)
+    {
+      uintptr_t va = *reinterpret_cast<uintptr_t *>(reinterpret_cast<uintptr_t>(method) + offset1);
+      if (g().memory->isPtrValid(va))
+      {
+        for (uintptr_t offset2 = 0; offset2 < 128; offset2 += 8)
+        {
+          if (offset1 == offset2)
+          {
             continue;
           }
 
           uintptr_t rva =
-              *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(method) + offset2);
-          if (va == rva) {
+              *reinterpret_cast<uintptr_t *>(reinterpret_cast<uintptr_t>(method) + offset2);
+          if (va == rva)
+          {
             return offset2;
           }
         }
@@ -1002,21 +1156,28 @@ uintptr_t Memory::findMethodPointer(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodVirtualPointer(ModuleInfo module) {
-  Il2Cpp::Class* klass = g().il2cpp->getClassFromName("mscorlib.dll", "MonoMethodInfo");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass))) {
-    Il2Cpp::Method* method = g().il2cpp->getMethods(klass).at(0);
-    for (uintptr_t offset1 = 0; offset1 < 128; offset1 += 8) {
-      uintptr_t va = *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(method) + offset1);
-      if (g().memory->isPtrValid(va)) {
-        for (uintptr_t offset2 = 0; offset2 < 128; offset2 += 8) {
-          if (offset1 == offset2) {
+uintptr_t Memory::findMethodVirtualPointer(ModuleInfo module)
+{
+  Il2Cpp::Class *klass = g().il2cpp->getClassFromName("mscorlib.dll", "MonoMethodInfo");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass)))
+  {
+    Il2Cpp::Method *method = g().il2cpp->getMethods(klass).at(0);
+    for (uintptr_t offset1 = 0; offset1 < 128; offset1 += 8)
+    {
+      uintptr_t va = *reinterpret_cast<uintptr_t *>(reinterpret_cast<uintptr_t>(method) + offset1);
+      if (g().memory->isPtrValid(va))
+      {
+        for (uintptr_t offset2 = 0; offset2 < 128; offset2 += 8)
+        {
+          if (offset1 == offset2)
+          {
             continue;
           }
 
           uintptr_t rva =
-              *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(method) + offset2);
-          if (va == rva) {
+              *reinterpret_cast<uintptr_t *>(reinterpret_cast<uintptr_t>(method) + offset2);
+          if (va == rva)
+          {
             return offset1;
           }
         }
@@ -1026,14 +1187,20 @@ uintptr_t Memory::findMethodVirtualPointer(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodSlot(ModuleInfo module) {
-  Il2Cpp::Class* klass = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
-  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass))) {
-    for (Il2Cpp::Method* method : g().il2cpp->getMethods(klass)) {
-      if (!strcmp(g().il2cpp->getMethodName(method), "ToString")) {
-        for (uintptr_t offset = 0; offset < 128; offset += 2) {
-          uint16_t slot = *reinterpret_cast<int8_t*>(reinterpret_cast<uintptr_t>(method) + offset);
-          if (slot == 3) {
+uintptr_t Memory::findMethodSlot(ModuleInfo module)
+{
+  Il2Cpp::Class *klass = g().il2cpp->getClassFromName("UnityEngine.CoreModule.dll", "Object");
+  if (g().memory->isPtrValid(reinterpret_cast<uintptr_t>(klass)))
+  {
+    for (Il2Cpp::Method *method : g().il2cpp->getMethods(klass))
+    {
+      if (!strcmp(g().il2cpp->getMethodName(method), "ToString"))
+      {
+        for (uintptr_t offset = 0; offset < 128; offset += 2)
+        {
+          uint16_t slot = *reinterpret_cast<int8_t *>(reinterpret_cast<uintptr_t>(method) + offset);
+          if (slot == 3)
+          {
             return offset;
           }
         }
@@ -1043,7 +1210,8 @@ uintptr_t Memory::findMethodSlot(ModuleInfo module) {
   return UINTPTR_MAX;
 }
 
-uintptr_t Memory::findMethodGetIsGeneric(ModuleInfo module) {
+uintptr_t Memory::findMethodGetIsGeneric(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? F8 ? ? ? A9 ? ? ? A9 ? ? ? A9 ? ? "
       "? A9 ? ? ? A9 F5 03 01 AA ? ? ? 91");
@@ -1051,17 +1219,18 @@ uintptr_t Memory::findMethodGetIsGeneric(ModuleInfo module) {
     return UINTPTR_MAX;
   uintptr_t function_address = g().memory->getUnityBase() + pattern_result.front();
   uintptr_t bl_address = function_address + 0xB8;
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }
 
-uintptr_t Memory::findMethodGetParameterName(ModuleInfo module) {
+uintptr_t Memory::findMethodGetParameterName(ModuleInfo module)
+{
   auto pattern_result = module.findPattern(
       "? ? ? 94 ? ? ? F9 ? ? ? F8 ? ? ? 91 ? ? ? "
       "F9 ? ? ? 39");
   if (pattern_result.empty())
     return UINTPTR_MAX;
   uintptr_t bl_address = g().memory->getUnityBase() + pattern_result.front();
-  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t*>(bl_address));
+  Assembler::bl bl = Assembler::bl(bl_address, *reinterpret_cast<uint32_t *>(bl_address));
   return bl.target - g().memory->getUnityBase();
 }

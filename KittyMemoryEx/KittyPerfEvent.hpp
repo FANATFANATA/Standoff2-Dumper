@@ -25,7 +25,8 @@ static constexpr size_t KT_WATCH_PAGES = 8;
 /**
  * @brief Represents the length of a hardware watchpoint in bytes.
  */
-enum KT_WATCH_LEN {
+enum KT_WATCH_LEN
+{
   KT_PERFWATCH_LEN_1 = 1,
   KT_PERFWATCH_LEN_2 = 2,
   KT_PERFWATCH_LEN_3 = 3,
@@ -39,7 +40,8 @@ enum KT_WATCH_LEN {
 /**
  * @brief Represents the different types of hardware watchpoints.
  */
-enum KT_WATCH_TYPE {
+enum KT_WATCH_TYPE
+{
   KT_PERFWATCH_EMPTY = 0,
   KT_PERFWATCH_R = 1,
   KT_PERFWATCH_W = 2,
@@ -51,7 +53,8 @@ enum KT_WATCH_TYPE {
 /**
  * @brief Structure to hold the performance sample.
  */
-struct KittyPerfSample {
+struct KittyPerfSample
+{
   /**
    * @brief The instruction pointer (IP) of the sampled event.
    */
@@ -77,20 +80,24 @@ struct KittyPerfSample {
    */
   uint64_t addr;
 
-  KittyPerfSample() : ip(0), pid(0), tid(0), time(0), addr(0) {
+  KittyPerfSample() : ip(0), pid(0), tid(0), time(0), addr(0)
+  {
   }
   KittyPerfSample(uint64_t ip, uint32_t pid, uint32_t tid, uint64_t time, uint64_t addr)
-      : ip(ip), pid(pid), tid(tid), time(time), addr(addr) {
+      : ip(ip), pid(pid), tid(tid), time(time), addr(addr)
+  {
   }
 };
 
 /**
  * @brief Class to manage hardware watchpoins.
  */
-class KittyPerfWatch {
+class KittyPerfWatch
+{
 public:
   KittyPerfWatch() = default;
-  ~KittyPerfWatch() {
+  ~KittyPerfWatch()
+  {
     clear();
   }
 
@@ -109,7 +116,7 @@ public:
    * @param timeout_ms The maximum time to wait for new samples in milliseconds.
    * @param cb A callback function to process each new sample.
    */
-  void poll(int timeout_ms, const std::function<bool(const KittyPerfSample&)>& cb);
+  void poll(int timeout_ms, const std::function<bool(const KittyPerfSample &)> &cb);
 
   /**
    * @brief Clears all watchpoints from the watch list.
@@ -117,16 +124,18 @@ public:
   void clear();
 
 protected:
-  struct WatchInfo {
+  struct WatchInfo
+  {
     int fd = -1;
-    void* mmap = nullptr;
+    void *mmap = nullptr;
     size_t mmap_sz = 0;
   };
 
   std::vector<WatchInfo> _watches;
 
-  static inline int perf_event_open(struct perf_event_attr* attr, pid_t pid, int cpu, int group_fd,
-                                    unsigned long flags) {
+  static inline int perf_event_open(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd,
+                                    unsigned long flags)
+  {
 #if defined(__aarch64__)
     return syscall(241, attr, pid, cpu, group_fd, flags);
 #elif defined(__arm__)
@@ -142,14 +151,15 @@ protected:
 
   bool enable();
   bool disable();
-  void consumeRecord(const WatchInfo& w, KittyPerfSample* out);
-  void pollOnce(int timeout_ms, KittyPerfSample* out);
+  void consumeRecord(const WatchInfo &w, KittyPerfSample *out);
+  void pollOnce(int timeout_ms, KittyPerfSample *out);
 };
 
 /**
  * @brief Class to manage trap signaling hardware watchpoins.
  */
-class KittyPerfTrap : public KittyPerfWatch {
+class KittyPerfTrap : public KittyPerfWatch
+{
 public:
   /**
    * @brief Adds a new trap signaling hardware watchpoint to the watch list.
